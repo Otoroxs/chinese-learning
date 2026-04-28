@@ -1,4 +1,3 @@
-import html
 import random
 import streamlit as st
 
@@ -14,1232 +13,1238 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# ------------------------------------------------------------
+# ============================================================
 # Vocabulary deck
-# ------------------------------------------------------------
-# Card types:
-# - verb/action cards include deeper "usage" notes.
-# - noun/object cards help you memorize the related words individually.
-# - antonym cards come from the 反义词 screenshot.
-# ------------------------------------------------------------
-
+# ============================================================
 CARDS = [
-    # ========================================================
-    # Actions / verbs from your first page
-    # ========================================================
+    # -----------------------------
+    # Original verbs / core phrases
+    # -----------------------------
     {
         "hanzi": "上网",
         "pinyin": "shàng wǎng",
-        "english": "to go online; use the internet",
-        "category": "Actions",
+        "english": "to go online; to use the internet",
+        "category": "Technology",
         "part": "verb-object phrase",
-        "usage": "Use 上网 when someone uses the internet in general. 网 is already the object, so you usually do not add another object after it.",
+        "usage": "Use 上网 for using the internet in general. Because 网 is already the object, do not add another object right after it.",
         "examples": ["我晚上上网。— I go online at night.", "你喜欢上网吗？— Do you like going online?"],
-        "hint": "上 = get on; 网 = web/net → get on the web.",
-        "related": ["网"],
+        "hint": "上 = get on; 网 = net/web → get on the web.",
     },
     {
         "hanzi": "上课",
         "pinyin": "shàng kè",
         "english": "to attend class; to have class",
-        "category": "Actions",
+        "category": "School",
         "part": "verb-object phrase",
-        "usage": "Use 上课 when someone is in class or attends class. The opposite is 下课.",
+        "usage": "Use 上课 when someone is attending class or when class begins. The opposite is 下课.",
         "examples": ["我九点上课。— I have class at 9.", "我们在教室上课。— We have class in the classroom."],
         "hint": "上 = start/attend; 课 = class.",
-        "related": ["课", "下课"],
     },
     {
         "hanzi": "下课",
         "pinyin": "xià kè",
         "english": "class ends; to finish class",
-        "category": "Actions",
+        "category": "School",
         "part": "verb-object phrase",
-        "usage": "Use 下课 when class is dismissed or finished.",
-        "examples": ["几点下课？— What time does class end?", "下课以后我去吃饭。— After class I go eat."],
-        "hint": "下 = down/off; class comes down and ends.",
-        "related": ["课", "上课"],
+        "usage": "Use 下课 when class is over or students are dismissed.",
+        "examples": ["几点下课？— What time does class end?", "我们下课以后去吃饭。— After class, we go eat."],
+        "hint": "下 is the opposite direction from 上课.",
     },
     {
         "hanzi": "查",
         "pinyin": "chá",
-        "english": "to check; look up",
-        "category": "Actions",
+        "english": "to check; to look up",
+        "category": "Study",
         "part": "verb",
-        "usage": "Often used with information sources: 查资料 means research/check materials; 查词典 means look something up in a dictionary.",
-        "examples": ["我查词典。— I look it up in the dictionary.", "他在网上查资料。— He researches information online."],
-        "hint": "查 is the action of checking or searching.",
-        "related": ["资料", "词典"],
+        "usage": "Common with information sources: 查资料, 查词典, 查地图. It means to search/check something.",
+        "examples": ["我查词典。— I look it up in a dictionary.", "你查一下资料吧。— Please check the materials/info."],
+        "hint": "Think: check/search.",
     },
     {
         "hanzi": "发",
         "pinyin": "fā",
-        "english": "to send; issue",
-        "category": "Actions",
+        "english": "to send; to issue",
+        "category": "Communication",
         "part": "verb",
-        "usage": "Use 发 for sending digital messages or documents: 发微信, 发邮件.",
-        "examples": ["我给你发邮件。— I send you an email.", "她发微信给我。— She sends me a WeChat message."],
+        "usage": "Common with messages and email: 发微信, 发邮件. It can also mean issue/distribute.",
+        "examples": ["我给你发邮件。— I send you an email.", "他发微信给我。— He sends me a WeChat message."],
         "hint": "发 sends something outward.",
-        "related": ["微信", "邮件"],
     },
     {
         "hanzi": "收",
         "pinyin": "shōu",
-        "english": "to receive; collect",
-        "category": "Actions",
+        "english": "to receive; to collect",
+        "category": "Communication",
         "part": "verb",
-        "usage": "This is often the opposite direction of 发. Use 收邮件 for receiving email, and 收到 for successfully receiving something.",
-        "examples": ["我收到你的邮件了。— I received your email.", "老师收作业。— The teacher collects homework."],
-        "hint": "发 sends out; 收 pulls in.",
-        "related": ["邮件"],
+        "usage": "Opposite direction from 发. Commonly used with 邮件: 收邮件.",
+        "examples": ["你收到邮件了吗？— Did you receive the email?", "我每天收邮件。— I check/receive emails every day."],
+        "hint": "收 pulls something in.",
     },
     {
         "hanzi": "借",
         "pinyin": "jiè",
-        "english": "to borrow; lend",
-        "category": "Actions",
+        "english": "to borrow; to lend",
+        "category": "Daily life",
         "part": "verb",
-        "usage": "借 can mean borrow or lend depending on direction. 借给 means lend to; 跟/向...借 means borrow from.",
-        "examples": ["我跟他借书。— I borrow a book from him.", "我借给你一本书。— I lend you a book."],
-        "hint": "Watch the direction: borrow from vs. lend to.",
-        "related": ["书", "词典"],
+        "usage": "借 changes meaning by direction. 跟/向 someone 借 means borrow from someone. 借给 someone means lend to someone.",
+        "examples": ["我借一本书。— I borrow a book.", "我把书借给你。— I lend the book to you."],
+        "hint": "Always check the direction: from someone or to someone.",
     },
     {
         "hanzi": "看",
         "pinyin": "kàn",
-        "english": "to watch; look at; read",
-        "category": "Actions",
+        "english": "to look at; to watch; to read",
+        "category": "Media",
         "part": "verb",
-        "usage": "Use 看 for visual activities: 看电影, 看电视剧, 看书.",
-        "examples": ["我看电影。— I watch a movie.", "你看电视剧吗？— Do you watch TV dramas?"],
-        "hint": "看 is for eyes: watching, seeing, reading.",
-        "related": ["电影", "电视剧", "京剧"],
+        "usage": "Use 看 with visual things: 看电影, 看书, 看电视, 看京剧.",
+        "examples": ["我看电影。— I watch a movie.", "她喜欢看书。— She likes reading books."],
+        "hint": "If your eyes are involved, 看 often works.",
     },
     {
         "hanzi": "听",
         "pinyin": "tīng",
         "english": "to listen",
-        "category": "Actions",
+        "category": "Media",
         "part": "verb",
-        "usage": "Use 听 for audio: 听音乐, 听录音, 听老师说话.",
+        "usage": "Use 听 with audio: 听音乐, 听录音, 听老师说话.",
         "examples": ["我听音乐。— I listen to music.", "请听录音。— Please listen to the recording."],
-        "hint": "听 is for ears.",
-        "related": ["音乐", "录音"],
+        "hint": "If your ears are involved, 听 often works.",
     },
     {
         "hanzi": "复习",
         "pinyin": "fùxí",
         "english": "to review",
-        "category": "Actions",
+        "category": "Study",
         "part": "verb",
-        "usage": "Use 复习 when reviewing things already learned: lessons, vocabulary, grammar, characters.",
-        "examples": ["我复习生词。— I review new vocabulary.", "考试以前要复习。— Before the exam, you need to review."],
-        "hint": "复 = again; 习 = study/practice.",
-        "related": ["课文", "生词", "汉字", "语法"],
+        "usage": "Use 复习 for reviewing material you already learned: 复习课文, 复习生词, 复习语法.",
+        "examples": ["我复习课文。— I review the text.", "考试以前要复习。— Before an exam, you need to review."],
+        "hint": "复 = again; 习 = practice/study.",
     },
     {
         "hanzi": "预习",
         "pinyin": "yùxí",
-        "english": "to preview; prepare before class",
-        "category": "Actions",
+        "english": "to preview; to prepare before class",
+        "category": "Study",
         "part": "verb",
-        "usage": "Use 预习 before learning something formally in class. Often used with 课文 or 生词.",
-        "examples": ["我预习课文。— I preview the text.", "上课以前要预习。— Before class, you need to preview."],
-        "hint": "预 = beforehand; 习 = study.",
-        "related": ["课文", "生词"],
+        "usage": "Use 预习 for studying before class: 预习课文, 预习生词.",
+        "examples": ["我预习生词。— I preview the new vocabulary.", "明天上课以前要预习。— Preview before tomorrow's class."],
+        "hint": "预 = beforehand.",
     },
     {
         "hanzi": "坐",
         "pinyin": "zuò",
-        "english": "to sit; take transportation",
-        "category": "Actions",
+        "english": "to sit; to take transportation",
+        "category": "Transportation",
         "part": "verb",
-        "usage": "Use 坐 for riding as a passenger: 坐飞机, 坐火车, 坐车.",
-        "examples": ["我坐飞机去北京。— I take a plane to Beijing.", "他坐火车。— He takes the train."],
+        "usage": "Use 坐 for transportation you ride as a passenger: 坐飞机, 坐火车, 坐车.",
+        "examples": ["我坐飞机去北京。— I go to Beijing by plane.", "他坐火车来。— He comes by train."],
         "hint": "You sit inside the vehicle.",
-        "related": ["飞机", "火车"],
     },
     {
         "hanzi": "骑",
         "pinyin": "qí",
         "english": "to ride",
-        "category": "Actions",
+        "category": "Transportation",
         "part": "verb",
-        "usage": "Use 骑 for bikes, motorcycles, horses, and things you ride on directly.",
-        "examples": ["我骑自行车。— I ride a bike.", "他骑车去学校。— He bikes to school."],
-        "hint": "骑 means riding on top of something.",
-        "related": ["自行车", "车"],
+        "usage": "Use 骑 for vehicles/animals you straddle, especially 骑自行车.",
+        "examples": ["我骑自行车。— I ride a bicycle.", "你会骑车吗？— Can you ride a bike?"],
+        "hint": "骑 often means riding on top of something.",
     },
     {
         "hanzi": "做",
         "pinyin": "zuò",
-        "english": "to do; make",
-        "category": "Actions",
+        "english": "to do; to make",
+        "category": "Daily life",
         "part": "verb",
-        "usage": "Use 做 for doing activities or making things. 做练习 means do exercises or practice problems.",
-        "examples": ["我做练习。— I do practice exercises.", "你做什么？— What are you doing?"],
-        "hint": "做 is the general do/make verb.",
-        "related": ["练习"],
+        "usage": "Use 做 for doing activities or making things: 做练习, 做饭, 做作业.",
+        "examples": ["我做练习。— I do exercises.", "妈妈做饭。— Mom cooks/makes food."],
+        "hint": "做 is a very general action verb.",
     },
     {
         "hanzi": "练习",
         "pinyin": "liànxí",
-        "english": "to practice; exercise",
-        "category": "Actions",
+        "english": "to practice; exercise/practice item",
+        "category": "Study",
         "part": "verb / noun",
-        "usage": "As a verb, 练习 means to practice. As a noun, it means exercise or practice problem.",
+        "usage": "练习 can be an action or a noun. 练习口语 means practice speaking. 做练习 means do exercises.",
         "examples": ["我练习口语。— I practice speaking.", "这些练习很有用。— These exercises are useful."],
-        "hint": "It can be both the action and the practice item.",
-        "related": ["口语"],
+        "hint": "It can be both the practice and the thing practiced.",
     },
     {
         "hanzi": "教",
         "pinyin": "jiāo",
         "english": "to teach",
-        "category": "Actions",
+        "category": "School",
         "part": "verb",
-        "usage": "Use 教 with a person or subject: 教我中文, 教汉语, 教体育课.",
+        "usage": "Use 教 with a subject or person: 教汉语, 教体育课, 教我中文.",
         "examples": ["老师教汉语。— The teacher teaches Chinese.", "你可以教我吗？— Can you teach me?"],
         "hint": "教 is the teacher action.",
-        "related": ["综合课", "听力课", "文化课", "口语课", "阅读课", "体育课"],
     },
     {
         "hanzi": "当",
         "pinyin": "dāng",
-        "english": "to serve as; work as; be",
-        "category": "Actions",
+        "english": "to be; to work as; to serve as",
+        "category": "Roles",
         "part": "verb",
-        "usage": "Use 当 for taking on a role: 当老师, 当翻译, 当学生.",
-        "examples": ["我想当翻译。— I want to be a translator.", "他当老师。— He works as a teacher."],
-        "hint": "当 introduces a role or job.",
-        "related": ["翻译"],
+        "usage": "Use 当 for roles/jobs: 当老师, 当翻译, 当学生代表.",
+        "examples": ["她想当老师。— She wants to be a teacher.", "我当翻译。— I work/serve as a translator."],
+        "hint": "当 points to a role someone takes.",
     },
     {
         "hanzi": "浇",
         "pinyin": "jiāo",
-        "english": "to water; pour liquid on",
-        "category": "Actions",
+        "english": "to water; to pour liquid on",
+        "category": "Daily life",
         "part": "verb",
-        "usage": "Use 浇 with plants or flowers. 浇花 means to water flowers or plants.",
-        "examples": ["我浇花。— I water the flowers.", "别忘了浇花。— Don't forget to water the plants."],
-        "hint": "The 氵 radical suggests water.",
-        "related": ["花"],
+        "usage": "Most often used as 浇花, to water flowers.",
+        "examples": ["我每天浇花。— I water flowers every day.", "请帮我浇一下花。— Please help me water the flowers."],
+        "hint": "Same sound as 教, different character and meaning.",
     },
     {
         "hanzi": "准备",
         "pinyin": "zhǔnbèi",
-        "english": "to prepare; get ready",
-        "category": "Actions",
+        "english": "to prepare; to get ready",
+        "category": "Daily life",
         "part": "verb",
-        "usage": "Use 准备 before nouns or verb phrases: 准备早饭, 准备考试, 准备去学校.",
+        "usage": "Use 准备 before what you are preparing: 准备早饭, 准备考试, 准备东西.",
         "examples": ["我准备早饭。— I prepare breakfast.", "你准备好了吗？— Are you ready?"],
-        "hint": "Prepare before doing something.",
-        "related": ["早饭", "午饭", "晚饭"],
+        "hint": "准备好 = ready/prepared.",
     },
     {
         "hanzi": "买",
         "pinyin": "mǎi",
         "english": "to buy",
-        "category": "Actions",
+        "category": "Shopping",
         "part": "verb",
-        "usage": "Use 买 with objects you purchase: 买东西, 买羽绒服. Be careful: 买 mǎi means buy, 卖 mài means sell.",
-        "examples": ["我买东西。— I buy things.", "她买羽绒服。— She buys a down jacket."],
-        "hint": "买 mǎi = buy; 卖 mài = sell.",
-        "related": ["羽绒服", "东西"],
+        "usage": "买 takes the thing purchased as an object: 买东西, 买羽绒服, 买书. It is the opposite of 卖 mài, to sell.",
+        "examples": ["我买东西。— I buy things.", "她买了一件羽绒服。— She bought a down jacket."],
+        "hint": "买 mǎi = buy. 卖 mài = sell.",
     },
     {
         "hanzi": "爬",
         "pinyin": "pá",
-        "english": "to climb; crawl",
-        "category": "Actions",
+        "english": "to climb; to crawl",
+        "category": "Sports / nature",
         "part": "verb",
-        "usage": "Use 爬 for climbing mountains or stairs, and also for crawling. 爬山 means go hiking or mountain climbing.",
-        "examples": ["我喜欢爬山。— I like hiking.", "小孩儿会爬了。— The child can crawl now."],
-        "hint": "爬 often uses hands and feet to move upward.",
-        "related": ["山"],
+        "usage": "Common with mountains: 爬山. It can also mean crawl.",
+        "examples": ["我们星期六去爬山。— We go mountain climbing on Saturday.", "小孩子会爬了。— The child can crawl now."],
+        "hint": "爬山 = climb a mountain.",
     },
     {
         "hanzi": "举行",
         "pinyin": "jǔxíng",
-        "english": "to hold; conduct an event",
-        "category": "Actions",
+        "english": "to hold; to conduct an event",
+        "category": "Events",
         "part": "verb",
-        "usage": "Use 举行 for organized events like parties, ceremonies, meetings, and competitions.",
+        "usage": "Use 举行 for organized events: 举行生日晚会, 举行会议, 举行比赛.",
         "examples": ["我们举行生日晚会。— We hold a birthday party.", "学校举行比赛。— The school holds a competition."],
-        "hint": "Formal event verb: hold or conduct.",
-        "related": ["生日晚会", "晚会"],
+        "hint": "Formal event-holding verb.",
     },
     {
         "hanzi": "参加",
         "pinyin": "cānjiā",
-        "english": "to participate in; attend",
-        "category": "Actions",
+        "english": "to participate in; to attend",
+        "category": "Events",
         "part": "verb",
-        "usage": "Use 参加 when joining activities or events: 参加晚会, 参加比赛, 参加会议.",
+        "usage": "Use 参加 for joining activities/events: 参加生日晚会, 参加比赛, 参加中文课.",
         "examples": ["我参加生日晚会。— I attend the birthday party.", "你参加比赛吗？— Are you participating in the competition?"],
-        "hint": "You personally join the activity.",
-        "related": ["生日晚会", "晚会"],
+        "hint": "You join the event.",
     },
     {
         "hanzi": "参观",
         "pinyin": "cānguān",
-        "english": "to visit or tour a place",
-        "category": "Actions",
+        "english": "to visit/tour a place",
+        "category": "Travel / places",
         "part": "verb",
-        "usage": "Use 参观 for visiting places in an observational or tour sense: museums, companies, schools.",
-        "examples": ["我们参观博物馆。— We tour the museum.", "他们参观公司。— They visit the company."],
-        "hint": "参观 = visit and observe.",
-        "related": ["博物馆", "公司"],
+        "usage": "Use 参观 for visiting places like museums, companies, schools, factories.",
+        "examples": ["我们参观博物馆。— We visit the museum.", "他们参观公司。— They tour the company."],
+        "hint": "More formal than just 去.",
     },
     {
         "hanzi": "锻炼",
         "pinyin": "duànliàn",
-        "english": "to exercise; work out",
-        "category": "Actions",
+        "english": "to exercise; to work out",
+        "category": "Health",
         "part": "verb",
-        "usage": "Use 锻炼 for physical exercise or training the body. 锻炼身体 is very common.",
-        "examples": ["我每天锻炼。— I exercise every day.", "锻炼身体很重要。— Exercising is important."],
-        "hint": "Think gym or workout.",
-        "related": ["身体"],
+        "usage": "Usually used with 身体: 锻炼身体.",
+        "examples": ["我每天锻炼身体。— I exercise every day.", "锻炼对身体很好。— Exercise is good for the body."],
+        "hint": "锻炼身体 is a common fixed phrase.",
     },
     {
         "hanzi": "带",
         "pinyin": "dài",
-        "english": "to bring; take along; carry",
-        "category": "Actions",
+        "english": "to bring; to take along; to carry",
+        "category": "Daily life",
         "part": "verb",
-        "usage": "Use 带 when carrying or bringing something with you: 带书, 带午饭.",
-        "examples": ["我带书。— I bring books.", "你带午饭了吗？— Did you bring lunch?"],
-        "hint": "带 = have something with you.",
-        "related": ["午饭", "书"],
+        "usage": "Use 带 for bringing/carrying something or someone: 带书, 带午饭, 带朋友.",
+        "examples": ["请带书。— Please bring the book.", "我带午饭。— I bring lunch."],
+        "hint": "带 means something comes with you.",
     },
     {
         "hanzi": "玩",
         "pinyin": "wán",
-        "english": "to play; have fun",
-        "category": "Actions",
+        "english": "to play; to have fun",
+        "category": "Entertainment",
         "part": "verb",
-        "usage": "Use 玩 with games, computers, or general fun activities: 玩游戏, 玩电脑.",
+        "usage": "Use 玩 with games, computers, places, or general fun: 玩游戏, 玩电脑.",
         "examples": ["我玩游戏。— I play games.", "他喜欢玩电脑。— He likes playing on the computer."],
-        "hint": "玩 = play or fun.",
-        "related": ["电脑", "游戏"],
+        "hint": "玩 is fun/play activity.",
     },
     {
         "hanzi": "唱",
         "pinyin": "chàng",
         "english": "to sing",
-        "category": "Actions",
+        "category": "Entertainment",
         "part": "verb",
-        "usage": "Use 唱 with songs, opera, and performances: 唱歌, 唱京剧.",
-        "examples": ["我唱歌。— I sing songs.", "她会唱京剧。— She can sing Beijing opera."],
-        "hint": "The 口 radical reminds you it uses your mouth.",
-        "related": ["歌", "京剧"],
+        "usage": "Common with 歌: 唱歌. You can also say 唱京剧 for singing Peking opera.",
+        "examples": ["她唱歌很好听。— Her singing sounds good.", "他们唱京剧。— They sing Peking opera."],
+        "hint": "唱歌 = sing songs.",
     },
     {
         "hanzi": "学",
         "pinyin": "xué",
-        "english": "to study; learn",
-        "category": "Actions",
+        "english": "to study; to learn",
+        "category": "Study",
         "part": "verb",
-        "usage": "Use 学 with subjects or skills: 学汉语, 学书法. 学 focuses on learning.",
+        "usage": "Use 学 with subjects/skills: 学汉语, 学书法, 学画画.",
         "examples": ["我学汉语。— I study Chinese.", "他学书法。— He studies calligraphy."],
-        "hint": "学 = learn or study.",
-        "related": ["书法", "汉语"],
+        "hint": "学 is the learner action.",
     },
     {
         "hanzi": "画",
         "pinyin": "huà",
         "english": "to draw; painting",
-        "category": "Actions",
+        "category": "Art",
         "part": "verb / noun",
-        "usage": "As a verb, 画 means draw or paint. As a noun, it can mean a painting or drawing.",
-        "examples": ["我画画儿。— I draw pictures.", "这幅画很好看。— This painting is pretty."],
-        "hint": "The same character can be a verb or a noun.",
-        "related": ["画儿"],
+        "usage": "As a verb, 画 means draw/paint. As a noun, 画 means picture/painting. 画儿 is a colloquial noun form.",
+        "examples": ["我画画儿。— I draw pictures.", "这张画很好看。— This painting looks nice."],
+        "hint": "画 can be the action or the picture.",
     },
 
-    # ========================================================
-    # Nouns / object words from your screenshots
-    # ========================================================
-    {
-        "hanzi": "网",
-        "pinyin": "wǎng",
-        "english": "net; web; internet",
-        "category": "Objects",
-        "part": "noun",
-        "usage": "网 means net or web. In everyday Chinese, it often refers to the internet in words like 上网.",
-        "examples": ["我上网。— I go online.", "这个网站很好。— This website is good."],
-        "hint": "网 is the web/net.",
-        "related": ["上网"],
-    },
-    {
-        "hanzi": "课",
-        "pinyin": "kè",
-        "english": "class; lesson",
-        "category": "School objects",
-        "part": "noun",
-        "usage": "课 means class or lesson. It appears in 上课, 下课, 综合课, 听力课, etc.",
-        "examples": ["今天有中文课。— Today there is Chinese class.", "我喜欢这门课。— I like this course."],
-        "hint": "课 = class/lesson.",
-        "related": ["上课", "下课"],
-    },
+    # -----------------------------
+    # Objects / nouns from the list
+    # -----------------------------
     {
         "hanzi": "资料",
         "pinyin": "zīliào",
-        "english": "materials; information; data",
-        "category": "Study objects",
+        "english": "materials; information",
+        "category": "Study",
         "part": "noun",
-        "usage": "资料 means information or reference materials. It is common with 查: 查资料.",
+        "usage": "Often appears with 查: 查资料 means look up information/materials.",
         "examples": ["我查资料。— I look up information.", "这些资料很有用。— These materials are useful."],
-        "hint": "Think research materials.",
-        "related": ["查"],
+        "hint": "资料 is information you can consult.",
     },
     {
         "hanzi": "词典",
         "pinyin": "cídiǎn",
         "english": "dictionary",
-        "category": "Study objects",
+        "category": "Study",
         "part": "noun",
-        "usage": "词典 means dictionary. You can 查词典 or 借词典.",
-        "examples": ["我查词典。— I look it up in the dictionary.", "我借一本词典。— I borrow a dictionary."],
-        "hint": "词 = word; 典 = reference book.",
-        "related": ["查", "借"],
+        "usage": "Often appears with 查 or 借: 查词典, 借词典.",
+        "examples": ["我查词典。— I check the dictionary.", "可以借你的词典吗？— May I borrow your dictionary?"],
+        "hint": "词 = word; 典 = reference/classic.",
     },
     {
         "hanzi": "微信",
-        "pinyin": "wēixìn",
+        "pinyin": "Wēixìn",
         "english": "WeChat",
-        "category": "Communication objects",
+        "category": "Communication",
         "part": "noun",
-        "usage": "微信 is WeChat. It is often used with 发: 发微信.",
+        "usage": "Use with 发: 发微信 means send a WeChat message.",
         "examples": ["我给你发微信。— I send you a WeChat message.", "你有微信吗？— Do you have WeChat?"],
-        "hint": "微信 = WeChat.",
-        "related": ["发"],
+        "hint": "微 = micro; 信 = message.",
     },
     {
         "hanzi": "邮件",
         "pinyin": "yóujiàn",
         "english": "email; mail",
-        "category": "Communication objects",
+        "category": "Communication",
         "part": "noun",
-        "usage": "邮件 can mean email or mail. Use 发邮件 to send email and 收邮件 to receive email.",
-        "examples": ["我发邮件。— I send an email.", "我收邮件。— I receive email."],
-        "hint": "Email/mail word.",
-        "related": ["发", "收"],
+        "usage": "Use with 发 and 收: 发邮件 = send email, 收邮件 = receive/check email.",
+        "examples": ["我发邮件。— I send an email.", "她收邮件。— She checks/receives email."],
+        "hint": "邮 is related to mail.",
     },
     {
         "hanzi": "书",
         "pinyin": "shū",
         "english": "book",
-        "category": "Study objects",
+        "category": "School",
         "part": "noun",
-        "usage": "书 means book. It can be used with 看, 借, 带.",
-        "examples": ["我看书。— I read a book.", "我带书。— I bring books."],
-        "hint": "书 = book.",
-        "related": ["看", "借", "带"],
+        "usage": "Common with 看, 借, 买, 带: 看书, 借书, 买书, 带书.",
+        "examples": ["我看书。— I read a book.", "请带书。— Please bring the book."],
+        "hint": "One of the most common school nouns.",
     },
     {
         "hanzi": "电影",
         "pinyin": "diànyǐng",
         "english": "movie",
-        "category": "Media objects",
+        "category": "Media",
         "part": "noun",
-        "usage": "电影 means movie. The usual verb is 看: 看电影.",
-        "examples": ["我看电影。— I watch a movie.", "这个电影很好看。— This movie is good."],
+        "usage": "Use with 看: 看电影 means watch a movie.",
+        "examples": ["我看电影。— I watch a movie.", "这个电影很好看。— This movie is good-looking/good."],
         "hint": "电 = electric; 影 = image/shadow.",
-        "related": ["看"],
     },
     {
         "hanzi": "电视剧",
         "pinyin": "diànshìjù",
-        "english": "TV drama; television series",
-        "category": "Media objects",
+        "english": "TV drama; TV series",
+        "category": "Media",
         "part": "noun",
-        "usage": "电视剧 means TV drama or TV series. Usually used with 看.",
-        "examples": ["我看电视剧。— I watch TV dramas.", "这个电视剧很有意思。— This TV series is interesting."],
+        "usage": "Use with 看: 看电视剧 means watch a TV show/drama.",
+        "examples": ["她喜欢看电视剧。— She likes watching TV dramas.", "这个电视剧很长。— This TV series is long."],
         "hint": "电视 = television; 剧 = drama.",
-        "related": ["看"],
     },
     {
         "hanzi": "京剧",
         "pinyin": "jīngjù",
-        "english": "Beijing opera",
-        "category": "Media objects",
+        "english": "Peking opera",
+        "category": "Culture",
         "part": "noun",
-        "usage": "京剧 is Beijing opera. You can 看京剧 or 唱京剧.",
-        "examples": ["我看京剧。— I watch Beijing opera.", "她会唱京剧。— She can sing Beijing opera."],
-        "hint": "京 = capital/Beijing; 剧 = drama/opera.",
-        "related": ["看", "唱"],
+        "usage": "Use with 看 or 唱: 看京剧, 唱京剧.",
+        "examples": ["我们看京剧。— We watch Peking opera.", "他会唱京剧。— He can sing Peking opera."],
+        "hint": "京 points to Beijing.",
     },
     {
         "hanzi": "音乐",
         "pinyin": "yīnyuè",
         "english": "music",
-        "category": "Media objects",
+        "category": "Media",
         "part": "noun",
-        "usage": "音乐 means music. The usual verb is 听: 听音乐.",
-        "examples": ["我听音乐。— I listen to music.", "我喜欢中文音乐。— I like Chinese music."],
-        "hint": "音 = sound; 乐 = music.",
-        "related": ["听"],
+        "usage": "Use with 听: 听音乐 means listen to music.",
+        "examples": ["我听音乐。— I listen to music.", "这个音乐很好听。— This music sounds good."],
+        "hint": "音 = sound; 乐 = music/joy.",
     },
     {
         "hanzi": "录音",
         "pinyin": "lùyīn",
         "english": "recording; audio recording",
-        "category": "Media objects",
+        "category": "Media",
         "part": "noun",
-        "usage": "录音 means audio recording. It is common in class instructions: 听录音.",
+        "usage": "Use with 听: 听录音 means listen to the recording.",
         "examples": ["请听录音。— Please listen to the recording.", "这个录音很清楚。— This recording is clear."],
         "hint": "录 = record; 音 = sound.",
-        "related": ["听"],
     },
     {
         "hanzi": "课文",
         "pinyin": "kèwén",
         "english": "text; lesson text",
-        "category": "School objects",
+        "category": "School",
         "part": "noun",
-        "usage": "课文 means the text or reading passage in a lesson. You can 预习课文 or 复习课文.",
-        "examples": ["我预习课文。— I preview the lesson text.", "这篇课文不难。— This lesson text is not difficult."],
+        "usage": "Use with 复习/预习: 复习课文, 预习课文.",
+        "examples": ["我复习课文。— I review the text.", "请预习课文。— Please preview the text."],
         "hint": "课 = lesson; 文 = text.",
-        "related": ["预习", "复习"],
     },
     {
         "hanzi": "生词",
         "pinyin": "shēngcí",
         "english": "new words; vocabulary",
-        "category": "School objects",
+        "category": "School",
         "part": "noun",
-        "usage": "生词 means new vocabulary words. Common with 预习 and 复习.",
-        "examples": ["我复习生词。— I review new words.", "今天的生词很多。— Today there are many new words."],
-        "hint": "生 = new/unfamiliar; 词 = word.",
-        "related": ["复习", "预习"],
+        "usage": "Use with 复习/预习: 复习生词, 预习生词.",
+        "examples": ["我预习生词。— I preview new words.", "这些生词不难。— These new words are not hard."],
+        "hint": "生 can mean unfamiliar/new here.",
     },
     {
         "hanzi": "汉字",
-        "pinyin": "hànzì",
-        "english": "Chinese characters",
-        "category": "School objects",
+        "pinyin": "Hànzì",
+        "english": "Chinese character",
+        "category": "School",
         "part": "noun",
-        "usage": "汉字 means Chinese characters. It is useful when talking about writing or memorizing characters.",
-        "examples": ["我复习汉字。— I review Chinese characters.", "这个汉字很难写。— This character is hard to write."],
+        "usage": "Use with 写, 学, 复习: 写汉字, 学汉字.",
+        "examples": ["我学汉字。— I study Chinese characters.", "这个汉字很难写。— This character is hard to write."],
         "hint": "汉 = Chinese; 字 = character.",
-        "related": ["复习"],
     },
     {
         "hanzi": "语法",
         "pinyin": "yǔfǎ",
         "english": "grammar",
-        "category": "School objects",
+        "category": "School",
         "part": "noun",
-        "usage": "语法 means grammar. You can 学语法 or 复习语法.",
+        "usage": "Use with 学/复习: 学语法, 复习语法.",
         "examples": ["我复习语法。— I review grammar.", "中文语法很有意思。— Chinese grammar is interesting."],
-        "hint": "语 = language; 法 = rules/method.",
-        "related": ["复习", "学"],
+        "hint": "语 = language; 法 = method/rules.",
     },
     {
         "hanzi": "飞机",
         "pinyin": "fēijī",
         "english": "airplane",
-        "category": "Transportation objects",
+        "category": "Transportation",
         "part": "noun",
-        "usage": "飞机 means airplane. Use 坐飞机 for taking a plane.",
-        "examples": ["我坐飞机。— I take a plane.", "飞机很快。— Airplanes are fast."],
+        "usage": "Use with 坐: 坐飞机 means take a plane.",
+        "examples": ["我坐飞机去纽约。— I take a plane to New York.", "飞机很快。— Airplanes are fast."],
         "hint": "飞 = fly; 机 = machine.",
-        "related": ["坐"],
     },
     {
         "hanzi": "火车",
         "pinyin": "huǒchē",
         "english": "train",
-        "category": "Transportation objects",
+        "category": "Transportation",
         "part": "noun",
-        "usage": "火车 means train. Use 坐火车 for taking the train.",
-        "examples": ["他坐火车。— He takes the train.", "火车站在哪儿？— Where is the train station?"],
-        "hint": "火 = fire; 车 = vehicle. Historically a steam train.",
-        "related": ["坐"],
-    },
-    {
-        "hanzi": "自行车",
-        "pinyin": "zìxíngchē",
-        "english": "bicycle",
-        "category": "Transportation objects",
-        "part": "noun",
-        "usage": "自行车 means bicycle. Use 骑自行车 for riding a bike.",
-        "examples": ["我骑自行车。— I ride a bicycle.", "这辆自行车很新。— This bicycle is new."],
-        "hint": "自行 = self-moving; 车 = vehicle.",
-        "related": ["骑"],
+        "usage": "Use with 坐: 坐火车 means take a train.",
+        "examples": ["我坐火车。— I take the train.", "火车站在哪儿？— Where is the train station?"],
+        "hint": "火 = fire; 车 = vehicle.",
     },
     {
         "hanzi": "车",
         "pinyin": "chē",
         "english": "vehicle; car",
-        "category": "Transportation objects",
+        "category": "Transportation",
         "part": "noun",
-        "usage": "车 is a general word for vehicle, car, or bike depending on context.",
-        "examples": ["我坐车去学校。— I go to school by vehicle/car.", "他骑车。— He rides a bike."],
-        "hint": "General vehicle word.",
-        "related": ["坐", "骑"],
+        "usage": "Use in 坐车 or 骑车. 自行车 means bicycle.",
+        "examples": ["我坐车去学校。— I go to school by car/bus.", "你会骑车吗？— Can you ride a bike?"],
+        "hint": "A broad word for vehicles.",
     },
     {
         "hanzi": "口语",
         "pinyin": "kǒuyǔ",
-        "english": "spoken language; oral Chinese",
-        "category": "School objects",
+        "english": "spoken language; speaking",
+        "category": "School",
         "part": "noun",
-        "usage": "口语 means speaking/oral language. Use 练习口语 for practicing speaking.",
-        "examples": ["我练习口语。— I practice speaking.", "口语课很有用。— Speaking class is useful."],
+        "usage": "Use with 练习 or 课: 练习口语, 口语课.",
+        "examples": ["我练习口语。— I practice speaking.", "今天有口语课。— Today there is speaking class."],
         "hint": "口 = mouth; 语 = language.",
-        "related": ["练习", "口语课"],
     },
     {
         "hanzi": "综合课",
         "pinyin": "zōnghé kè",
         "english": "comprehensive class",
-        "category": "Class names",
-        "part": "noun phrase",
-        "usage": "综合课 is a comprehensive/integrated language class. It may combine grammar, vocabulary, reading, and speaking.",
-        "examples": ["我有综合课。— I have comprehensive class.", "综合课有点儿难。— Comprehensive class is a little hard."],
-        "hint": "综合 = comprehensive; 课 = class.",
-        "related": ["教"],
+        "category": "Courses",
+        "part": "noun",
+        "usage": "A type of class. Use with 上: 上综合课.",
+        "examples": ["我今天上综合课。— I have comprehensive class today."],
+        "hint": "课 means class.",
     },
     {
         "hanzi": "听力课",
         "pinyin": "tīnglì kè",
         "english": "listening class",
-        "category": "Class names",
-        "part": "noun phrase",
-        "usage": "听力课 is a listening class.",
-        "examples": ["今天有听力课。— Today there is listening class.", "我喜欢听力课。— I like listening class."],
+        "category": "Courses",
+        "part": "noun",
+        "usage": "A class focused on listening skills. Use with 上.",
+        "examples": ["明天有听力课。— Tomorrow there is listening class."],
         "hint": "听力 = listening ability.",
-        "related": ["听", "教"],
     },
     {
         "hanzi": "文化课",
         "pinyin": "wénhuà kè",
         "english": "culture class",
-        "category": "Class names",
-        "part": "noun phrase",
-        "usage": "文化课 means culture class.",
-        "examples": ["我们上文化课。— We attend culture class.", "文化课很有意思。— Culture class is interesting."],
+        "category": "Courses",
+        "part": "noun",
+        "usage": "A class about culture. Use with 上.",
+        "examples": ["我们上文化课。— We attend culture class."],
         "hint": "文化 = culture.",
-        "related": ["教"],
     },
     {
         "hanzi": "口语课",
         "pinyin": "kǒuyǔ kè",
         "english": "speaking class",
-        "category": "Class names",
-        "part": "noun phrase",
-        "usage": "口语课 means speaking/oral class.",
-        "examples": ["口语课几点上？— What time is speaking class?", "老师教口语课。— The teacher teaches speaking class."],
+        "category": "Courses",
+        "part": "noun",
+        "usage": "A class focused on speaking. Use with 上.",
+        "examples": ["我喜欢口语课。— I like speaking class."],
         "hint": "口语 = spoken language.",
-        "related": ["口语", "教"],
     },
     {
         "hanzi": "阅读课",
         "pinyin": "yuèdú kè",
         "english": "reading class",
-        "category": "Class names",
-        "part": "noun phrase",
-        "usage": "阅读课 means reading class.",
-        "examples": ["我有阅读课。— I have reading class.", "阅读课要看很多课文。— In reading class, we read many texts."],
+        "category": "Courses",
+        "part": "noun",
+        "usage": "A class focused on reading. Use with 上.",
+        "examples": ["今天没有阅读课。— Today there is no reading class."],
         "hint": "阅读 = reading.",
-        "related": ["课文", "教"],
     },
     {
         "hanzi": "体育课",
         "pinyin": "tǐyù kè",
         "english": "P.E.; physical education class",
-        "category": "Class names",
-        "part": "noun phrase",
-        "usage": "体育课 means physical education class.",
-        "examples": ["我喜欢体育课。— I like P.E. class.", "今天没有体育课。— Today there is no P.E. class."],
+        "category": "Courses",
+        "part": "noun",
+        "usage": "A sports/physical education class. Use with 上 or 教.",
+        "examples": ["老师教体育课。— The teacher teaches P.E.", "我星期五上体育课。— I have P.E. on Friday."],
         "hint": "体育 = physical education/sports.",
-        "related": ["锻炼", "教"],
     },
     {
         "hanzi": "翻译",
         "pinyin": "fānyì",
-        "english": "translator; to translate",
-        "category": "People / roles",
-        "part": "noun / verb",
-        "usage": "翻译 can mean translator or the action 'to translate'. In 当翻译, it means to work as a translator.",
-        "examples": ["我想当翻译。— I want to be a translator.", "请你翻译这句话。— Please translate this sentence."],
-        "hint": "Can be a person or an action.",
-        "related": ["当"],
+        "english": "translation; translator; to translate",
+        "category": "Roles",
+        "part": "verb / noun",
+        "usage": "Can be a job/person or an action. 当翻译 means to work as a translator.",
+        "examples": ["我当翻译。— I work as a translator.", "请翻译这个句子。— Please translate this sentence."],
+        "hint": "Can be both person and action.",
     },
     {
         "hanzi": "花",
         "pinyin": "huā",
         "english": "flower",
-        "category": "Objects",
+        "category": "Daily life",
         "part": "noun",
-        "usage": "花 means flower. With 浇, it forms 浇花, to water flowers/plants.",
-        "examples": ["我浇花。— I water the flowers.", "这些花很好看。— These flowers are pretty."],
-        "hint": "Flower word.",
-        "related": ["浇"],
+        "usage": "Common with 浇: 浇花 means water flowers.",
+        "examples": ["我浇花。— I water flowers.", "这些花很好看。— These flowers are pretty."],
+        "hint": "Think of flowers needing water.",
     },
     {
         "hanzi": "早饭",
         "pinyin": "zǎofàn",
         "english": "breakfast",
-        "category": "Food objects",
+        "category": "Food",
         "part": "noun",
-        "usage": "早饭 means breakfast. You can 吃早饭 or 准备早饭.",
-        "examples": ["我吃早饭。— I eat breakfast.", "她准备早饭。— She prepares breakfast."],
+        "usage": "Use with 吃 or 准备: 吃早饭, 准备早饭.",
+        "examples": ["我吃早饭。— I eat breakfast.", "妈妈准备早饭。— Mom prepares breakfast."],
         "hint": "早 = early; 饭 = meal.",
-        "related": ["准备"],
     },
     {
         "hanzi": "午饭",
         "pinyin": "wǔfàn",
         "english": "lunch",
-        "category": "Food objects",
+        "category": "Food",
         "part": "noun",
-        "usage": "午饭 means lunch. You can 吃午饭, 准备午饭, or 带午饭.",
-        "examples": ["我吃午饭。— I eat lunch.", "你带午饭了吗？— Did you bring lunch?"],
-        "hint": "午 = noon; 饭 = meal.",
-        "related": ["准备", "带"],
+        "usage": "Use with 吃, 做, 带: 吃午饭, 做午饭, 带午饭.",
+        "examples": ["我吃午饭。— I eat lunch.", "我带午饭。— I bring lunch."],
+        "hint": "午 = noon.",
     },
     {
         "hanzi": "晚饭",
         "pinyin": "wǎnfàn",
         "english": "dinner",
-        "category": "Food objects",
+        "category": "Food",
         "part": "noun",
-        "usage": "晚饭 means dinner. You can 吃晚饭 or 准备晚饭.",
-        "examples": ["我吃晚饭。— I eat dinner.", "我们准备晚饭。— We prepare dinner."],
-        "hint": "晚 = evening; 饭 = meal.",
-        "related": ["准备"],
+        "usage": "Use with 吃, 做, 准备: 吃晚饭, 做晚饭.",
+        "examples": ["我们吃晚饭。— We eat dinner.", "他做晚饭。— He makes dinner."],
+        "hint": "晚 = evening.",
     },
     {
         "hanzi": "羽绒服",
         "pinyin": "yǔróngfú",
         "english": "down jacket",
-        "category": "Shopping objects",
+        "category": "Shopping",
         "part": "noun",
-        "usage": "羽绒服 means down jacket. It is a common object with 买.",
-        "examples": ["我买羽绒服。— I buy a down jacket.", "这件羽绒服很贵。— This down jacket is expensive."],
+        "usage": "Use with 买 or 穿: 买羽绒服, 穿羽绒服.",
+        "examples": ["我买羽绒服。— I buy a down jacket.", "今天很冷，穿羽绒服吧。— It is cold today, wear a down jacket."],
         "hint": "服 = clothing.",
-        "related": ["买"],
     },
     {
         "hanzi": "东西",
         "pinyin": "dōngxi",
         "english": "thing; stuff",
-        "category": "Shopping objects",
+        "category": "Shopping",
         "part": "noun",
-        "usage": "东西 is a very common word meaning thing or stuff. 买东西 means to buy things / go shopping.",
-        "examples": ["我买东西。— I buy things.", "这是什么东西？— What is this thing?"],
-        "hint": "General word for stuff/things.",
-        "related": ["买"],
+        "usage": "Very common object word. 买东西 means buy things.",
+        "examples": ["我买东西。— I buy things.", "这是什么东西？— What thing is this?"],
+        "hint": "Useful when you do not name the object.",
     },
     {
         "hanzi": "山",
         "pinyin": "shān",
         "english": "mountain",
-        "category": "Nature objects",
+        "category": "Sports / nature",
         "part": "noun",
-        "usage": "山 means mountain. 爬山 means to climb a mountain or go hiking.",
-        "examples": ["我喜欢爬山。— I like hiking.", "那座山很高。— That mountain is tall."],
-        "hint": "山 even looks like mountain peaks.",
-        "related": ["爬"],
+        "usage": "Common in 爬山, to climb/hike a mountain.",
+        "examples": ["我们爬山。— We climb/hike a mountain.", "那座山很高。— That mountain is tall."],
+        "hint": "爬山 is a fixed phrase.",
     },
     {
         "hanzi": "生日晚会",
         "pinyin": "shēngrì wǎnhuì",
         "english": "birthday party",
-        "category": "Events objects",
-        "part": "noun phrase",
-        "usage": "生日晚会 means birthday party. Use 举行 for holding one and 参加 for attending one.",
-        "examples": ["我参加生日晚会。— I attend a birthday party.", "我们举行生日晚会。— We hold a birthday party."],
-        "hint": "生日 = birthday; 晚会 = party/evening gathering.",
-        "related": ["举行", "参加"],
-    },
-    {
-        "hanzi": "晚会",
-        "pinyin": "wǎnhuì",
-        "english": "party; evening gathering",
-        "category": "Events objects",
+        "category": "Events",
         "part": "noun",
-        "usage": "晚会 is a party or evening event. It appears in 生日晚会.",
-        "examples": ["我参加晚会。— I attend the party.", "这个晚会很热闹。— This party is lively."],
-        "hint": "晚 = evening; 会 = gathering.",
-        "related": ["生日晚会", "参加", "举行"],
+        "usage": "Use with 举行 or 参加: 举行生日晚会, 参加生日晚会.",
+        "examples": ["我参加生日晚会。— I attend a birthday party.", "他们举行生日晚会。— They hold a birthday party."],
+        "hint": "生日 = birthday; 晚会 = evening party.",
     },
     {
         "hanzi": "博物馆",
         "pinyin": "bówùguǎn",
         "english": "museum",
-        "category": "Places",
+        "category": "Travel / places",
         "part": "noun",
-        "usage": "博物馆 means museum. Use 参观博物馆 when you tour or visit a museum.",
-        "examples": ["我们参观博物馆。— We visit/tour the museum.", "博物馆在哪儿？— Where is the museum?"],
-        "hint": "馆 often means a building/place.",
-        "related": ["参观"],
+        "usage": "Use with 参观: 参观博物馆.",
+        "examples": ["我们参观博物馆。— We visit the museum.", "博物馆很大。— The museum is big."],
+        "hint": "馆 often means building/place.",
     },
     {
         "hanzi": "公司",
         "pinyin": "gōngsī",
         "english": "company",
-        "category": "Places",
+        "category": "Travel / places",
         "part": "noun",
-        "usage": "公司 means company. Use 参观公司 when touring a company.",
-        "examples": ["他们参观公司。— They visit the company.", "我爸爸在公司工作。— My dad works at a company."],
-        "hint": "Company/workplace word.",
-        "related": ["参观"],
+        "usage": "Use with 参观 or 去: 参观公司, 去公司.",
+        "examples": ["他们参观公司。— They tour the company.", "我去公司。— I go to the company/office."],
+        "hint": "A workplace/company.",
     },
     {
         "hanzi": "身体",
         "pinyin": "shēntǐ",
         "english": "body; health",
-        "category": "Health objects",
+        "category": "Health",
         "part": "noun",
-        "usage": "身体 means body. 锻炼身体 is a very common phrase meaning to exercise the body / work out.",
-        "examples": ["锻炼身体很重要。— Exercising is important.", "他的身体很好。— His health is good."],
-        "hint": "身 = body; 体 = body/form.",
-        "related": ["锻炼"],
+        "usage": "Common with 锻炼: 锻炼身体 means exercise the body.",
+        "examples": ["锻炼身体很重要。— Exercising is important.", "你的身体好吗？— Is your health/body good?"],
+        "hint": "身 = body/person; 体 = body.",
     },
     {
         "hanzi": "电脑",
         "pinyin": "diànnǎo",
         "english": "computer",
-        "category": "Technology objects",
+        "category": "Technology",
         "part": "noun",
-        "usage": "电脑 means computer. 玩电脑 can mean play/use the computer casually.",
-        "examples": ["我玩电脑。— I play/use the computer.", "这台电脑很新。— This computer is new."],
+        "usage": "Use with 玩, 用, 买: 玩电脑, 用电脑, 买电脑.",
+        "examples": ["我用电脑。— I use a computer.", "他玩电脑。— He plays on the computer."],
         "hint": "电 = electric; 脑 = brain.",
-        "related": ["玩"],
     },
     {
         "hanzi": "游戏",
         "pinyin": "yóuxì",
         "english": "game",
-        "category": "Entertainment objects",
+        "category": "Entertainment",
         "part": "noun",
-        "usage": "游戏 means game. 玩游戏 means play games.",
-        "examples": ["我玩游戏。— I play games.", "这个游戏很好玩。— This game is fun."],
-        "hint": "Play object: 玩游戏.",
-        "related": ["玩"],
+        "usage": "Use with 玩: 玩游戏 means play games.",
+        "examples": ["我玩游戏。— I play games.", "这个游戏很有意思。— This game is interesting."],
+        "hint": "玩游戏 is a common phrase.",
     },
     {
         "hanzi": "歌",
         "pinyin": "gē",
         "english": "song",
-        "category": "Entertainment objects",
+        "category": "Entertainment",
         "part": "noun",
-        "usage": "歌 means song. 唱歌 means to sing.",
-        "examples": ["我唱歌。— I sing.", "这首歌很好听。— This song sounds good."],
-        "hint": "歌 = song.",
-        "related": ["唱"],
+        "usage": "Use with 唱 or 听: 唱歌, 听歌.",
+        "examples": ["她唱歌。— She sings.", "我听歌。— I listen to songs."],
+        "hint": "唱歌 = sing.",
     },
     {
         "hanzi": "书法",
         "pinyin": "shūfǎ",
         "english": "calligraphy",
-        "category": "Art / school objects",
+        "category": "Art",
         "part": "noun",
-        "usage": "书法 means calligraphy. 学书法 means to study calligraphy.",
-        "examples": ["我学书法。— I study calligraphy.", "他的书法很好。— His calligraphy is good."],
-        "hint": "书 = writing; 法 = method.",
-        "related": ["学"],
+        "usage": "Use with 学: 学书法.",
+        "examples": ["我学书法。— I study calligraphy.", "书法很漂亮。— Calligraphy is beautiful."],
+        "hint": "书 = writing/book; 法 = method.",
     },
     {
         "hanzi": "汉语",
-        "pinyin": "hànyǔ",
+        "pinyin": "Hànyǔ",
         "english": "Chinese language",
-        "category": "School objects",
+        "category": "School",
         "part": "noun",
-        "usage": "汉语 means Chinese language. 学汉语 means to study Chinese.",
-        "examples": ["我学汉语。— I study Chinese.", "汉语很有意思。— Chinese is very interesting."],
-        "hint": "汉 = Chinese; 语 = language.",
-        "related": ["学", "教"],
+        "usage": "Use with 学 or 教: 学汉语, 教汉语.",
+        "examples": ["我学汉语。— I study Chinese.", "老师教汉语。— The teacher teaches Chinese."],
+        "hint": "语 means language.",
     },
     {
         "hanzi": "画儿",
         "pinyin": "huàr",
-        "english": "drawing; picture; painting",
-        "category": "Art / school objects",
+        "english": "picture; drawing",
+        "category": "Art",
         "part": "noun",
-        "usage": "画儿 means drawing/picture. 画画儿 means to draw pictures.",
+        "usage": "Colloquial form of 画 as a noun. Common in 画画儿.",
         "examples": ["我画画儿。— I draw pictures.", "这张画儿很好看。— This picture is pretty."],
-        "hint": "The 儿 changes the pronunciation to huàr.",
-        "related": ["画"],
+        "hint": "The 儿 makes it sound more colloquial/northern.",
     },
 
-    # ========================================================
-    # Antonyms from the 反义词 screenshot
-    # ========================================================
+    # -----------------------------
+    # Antonyms / adjective pairs
+    # -----------------------------
     {
-        "hanzi": "大 — 小",
-        "pinyin": "dà — xiǎo",
-        "english": "big — small",
+        "hanzi": "大",
+        "pinyin": "dà",
+        "english": "big",
         "category": "Antonyms",
-        "part": "adjective pair",
-        "usage": "These are opposite adjectives. 大 describes something big or large; 小 describes something small.",
-        "examples": ["这个房间很大，那个房间很小。— This room is big; that room is small.", "大狗和小猫。— A big dog and a small cat."],
-        "hint": "Learn them as a pair: 大 ↔ 小.",
-        "related": [],
+        "part": "adjective",
+        "usage": "Opposite of 小. Use before nouns or after 很: 大房子, 很大.",
+        "examples": ["这个学校很大。— This school is big.", "大苹果。— Big apple."],
+        "hint": "Opposite pair: 大 — 小.",
     },
     {
-        "hanzi": "贵 — 便宜",
-        "pinyin": "guì — piányi",
-        "english": "expensive — cheap",
+        "hanzi": "小",
+        "pinyin": "xiǎo",
+        "english": "small",
         "category": "Antonyms",
-        "part": "adjective pair",
-        "usage": "Use 贵 for something expensive and 便宜 for something cheap or inexpensive, usually in shopping contexts.",
-        "examples": ["这个衣服很贵。— This piece of clothing is expensive.", "那个很好看，而且很便宜。— That one looks nice and is also cheap."],
-        "hint": "Shopping pair: 贵 ↔ 便宜.",
-        "related": [],
+        "part": "adjective",
+        "usage": "Opposite of 大. Use before nouns or after 很: 小房子, 很小.",
+        "examples": ["我的房间很小。— My room is small.", "小猫。— Small cat."],
+        "hint": "Opposite pair: 大 — 小.",
     },
     {
-        "hanzi": "长 — 短",
-        "pinyin": "cháng — duǎn",
-        "english": "long — short",
+        "hanzi": "贵",
+        "pinyin": "guì",
+        "english": "expensive",
         "category": "Antonyms",
-        "part": "adjective pair",
-        "usage": "Use 长 for long length and 短 for short length. These often describe hair, time, distance, clothes, or objects.",
-        "examples": ["她的头发很长。— Her hair is long.", "这条裙子太短了。— This skirt is too short."],
-        "hint": "Length pair: 长 ↔ 短.",
-        "related": [],
+        "part": "adjective",
+        "usage": "Opposite of 便宜. Use for prices: 很贵, 不贵.",
+        "examples": ["这个电脑很贵。— This computer is expensive.", "羽绒服贵不贵？— Is the down jacket expensive?"],
+        "hint": "Opposite pair: 贵 — 便宜.",
     },
     {
-        "hanzi": "好看 — 难看",
-        "pinyin": "hǎokàn — nánkàn",
-        "english": "good-looking; nice-looking — ugly; unpleasant to look at",
+        "hanzi": "便宜",
+        "pinyin": "piányi",
+        "english": "cheap; inexpensive",
         "category": "Antonyms",
-        "part": "descriptive pair",
-        "usage": "Use 好看 to say something looks nice or attractive. Use 难看 to say it looks ugly or bad.",
-        "examples": ["这件衣服很好看。— These clothes look nice.", "这个颜色不太好看。— This color is not very nice-looking."],
-        "hint": "好看 literally means good to look at; 难看 means hard or unpleasant to look at.",
-        "related": [],
+        "part": "adjective",
+        "usage": "Opposite of 贵. Useful when shopping.",
+        "examples": ["这个东西很便宜。— This thing is cheap.", "那件衣服不便宜。— That clothing item is not cheap."],
+        "hint": "Opposite pair: 贵 — 便宜.",
     },
     {
-        "hanzi": "深 — 浅",
-        "pinyin": "shēn — qiǎn",
-        "english": "deep — shallow; dark color — light color",
+        "hanzi": "长",
+        "pinyin": "cháng",
+        "english": "long",
         "category": "Antonyms",
-        "part": "adjective pair",
-        "usage": "深 and 浅 are opposites for depth. They can also describe dark vs. light shades of color.",
-        "examples": ["这条河很深。— This river is deep.", "我喜欢浅蓝色。— I like light blue."],
-        "hint": "Depth or color intensity pair: 深 ↔ 浅.",
-        "related": [],
+        "part": "adjective",
+        "usage": "Opposite of 短. Use for length or time duration.",
+        "examples": ["这节课很长。— This class is long.", "她的头发很长。— Her hair is long."],
+        "hint": "Opposite pair: 长 — 短.",
     },
     {
-        "hanzi": "胖 — 瘦",
-        "pinyin": "pàng — shòu",
-        "english": "fat — thin",
+        "hanzi": "短",
+        "pinyin": "duǎn",
+        "english": "short",
         "category": "Antonyms",
-        "part": "adjective pair",
-        "usage": "Use 胖 to describe someone or something fat; use 瘦 for thin or skinny.",
-        "examples": ["他有一点儿胖。— He is a little fat.", "她很瘦。— She is very thin."],
-        "hint": "Body description pair: 胖 ↔ 瘦.",
-        "related": [],
+        "part": "adjective",
+        "usage": "Opposite of 长. Use for length or time duration.",
+        "examples": ["这个电影很短。— This movie is short.", "我的头发短。— My hair is short."],
+        "hint": "Opposite pair: 长 — 短.",
     },
     {
-        "hanzi": "难 — 容易",
-        "pinyin": "nán — róngyì",
-        "english": "difficult — easy",
+        "hanzi": "好看",
+        "pinyin": "hǎokàn",
+        "english": "good-looking; nice to watch/read",
         "category": "Antonyms",
-        "part": "adjective pair",
-        "usage": "Use 难 for something difficult and 容易 for something easy.",
-        "examples": ["汉字很难。— Chinese characters are difficult.", "这个问题很容易。— This question is easy."],
-        "hint": "Difficulty pair: 难 ↔ 容易.",
-        "related": [],
+        "part": "adjective",
+        "usage": "Use 好看 for visual appeal: people, clothes, movies, characters, books.",
+        "examples": ["这个电影很好看。— This movie is good.", "这件衣服很好看。— This clothing looks nice."],
+        "hint": "Opposite pair: 好看 — 难看.",
     },
     {
-        "hanzi": "厚 — 薄",
-        "pinyin": "hòu — báo",
-        "english": "thick — thin",
+        "hanzi": "难看",
+        "pinyin": "nánkàn",
+        "english": "ugly; bad-looking",
         "category": "Antonyms",
-        "part": "adjective pair",
-        "usage": "Use 厚 for thick things such as books, clothes, walls, or slices. Use 薄 for thin things.",
-        "examples": ["这本书很厚。— This book is thick.", "这件衣服太薄了。— These clothes are too thin."],
-        "hint": "Thickness pair: 厚 ↔ 薄.",
-        "related": [],
+        "part": "adjective",
+        "usage": "Opposite of 好看. It can be strong/rude when describing people.",
+        "examples": ["这个颜色有点儿难看。— This color is a bit ugly.", "这张照片不好看。— This photo is not good-looking."],
+        "hint": "Opposite pair: 好看 — 难看.",
     },
     {
-        "hanzi": "好听 — 难听",
-        "pinyin": "hǎotīng — nántīng",
-        "english": "pleasant to hear — unpleasant to hear",
+        "hanzi": "深",
+        "pinyin": "shēn",
+        "english": "deep; dark/intense",
         "category": "Antonyms",
-        "part": "descriptive pair",
-        "usage": "Use 好听 for something that sounds nice, especially music or a voice. Use 难听 for something unpleasant to hear.",
-        "examples": ["这首歌很好听。— This song sounds nice.", "他说的话很难听。— What he said was unpleasant to hear."],
-        "hint": "Audio pair: 好听 ↔ 难听.",
-        "related": [],
+        "part": "adjective",
+        "usage": "Opposite of 浅. Can describe depth or color intensity.",
+        "examples": ["这个水很深。— This water is deep.", "深蓝色。— Dark blue."],
+        "hint": "Opposite pair: 深 — 浅.",
     },
     {
-        "hanzi": "好喝 — 难喝",
-        "pinyin": "hǎohē — nánhē",
-        "english": "tasty to drink — bad to drink",
+        "hanzi": "浅",
+        "pinyin": "qiǎn",
+        "english": "shallow; light/pale",
         "category": "Antonyms",
-        "part": "descriptive pair",
-        "usage": "Use 好喝 for drinks that taste good. Use 难喝 for drinks that taste bad.",
-        "examples": ["这个茶很好喝。— This tea is tasty.", "那杯咖啡很难喝。— That cup of coffee tastes bad."],
-        "hint": "Drink-taste pair: 好喝 ↔ 难喝.",
-        "related": [],
+        "part": "adjective",
+        "usage": "Opposite of 深. Can describe water depth or color lightness.",
+        "examples": ["这里水很浅。— The water here is shallow.", "浅蓝色。— Light blue."],
+        "hint": "Opposite pair: 深 — 浅.",
     },
     {
-        "hanzi": "好吃 — 难吃",
-        "pinyin": "hǎochī — nánchī",
-        "english": "tasty — bad-tasting",
+        "hanzi": "胖",
+        "pinyin": "pàng",
+        "english": "fat; plump",
         "category": "Antonyms",
-        "part": "descriptive pair",
-        "usage": "Use 好吃 for food that tastes good and 难吃 for food that tastes bad.",
-        "examples": ["这个菜很好吃。— This dish is delicious.", "学校的饭不太好吃。— The school food is not very tasty."],
-        "hint": "Food-taste pair: 好吃 ↔ 难吃.",
-        "related": [],
+        "part": "adjective",
+        "usage": "Opposite of 瘦. Be careful using it directly with people because it can sound rude.",
+        "examples": ["这只猫很胖。— This cat is fat/plump.", "他不胖。— He is not fat."],
+        "hint": "Opposite pair: 胖 — 瘦.",
     },
     {
-        "hanzi": "肥肉 — 瘦肉",
-        "pinyin": "féiròu — shòuròu",
-        "english": "fatty meat — lean meat",
+        "hanzi": "瘦",
+        "pinyin": "shòu",
+        "english": "thin; skinny",
         "category": "Antonyms",
-        "part": "noun pair",
-        "usage": "These are opposite food terms used when talking about meat. 肥肉 is fatty meat; 瘦肉 is lean meat.",
-        "examples": ["我不太喜欢肥肉。— I do not really like fatty meat.", "他喜欢吃瘦肉。— He likes eating lean meat."],
-        "hint": "Meat pair: 肥肉 ↔ 瘦肉.",
-        "related": [],
+        "part": "adjective",
+        "usage": "Opposite of 胖. Can describe people, animals, or meat.",
+        "examples": ["她很瘦。— She is thin.", "瘦肉。— Lean meat."],
+        "hint": "Opposite pair: 胖 — 瘦.",
+    },
+    {
+        "hanzi": "难",
+        "pinyin": "nán",
+        "english": "difficult",
+        "category": "Antonyms",
+        "part": "adjective",
+        "usage": "Opposite of 容易. Use for tasks, classes, questions, characters.",
+        "examples": ["中文难吗？— Is Chinese difficult?", "这个汉字很难。— This character is difficult."],
+        "hint": "Opposite pair: 难 — 容易.",
+    },
+    {
+        "hanzi": "容易",
+        "pinyin": "róngyì",
+        "english": "easy",
+        "category": "Antonyms",
+        "part": "adjective",
+        "usage": "Opposite of 难. Use for tasks, questions, grammar, characters.",
+        "examples": ["这个问题很容易。— This question is easy.", "汉语不容易。— Chinese is not easy."],
+        "hint": "Opposite pair: 难 — 容易.",
+    },
+    {
+        "hanzi": "厚",
+        "pinyin": "hòu",
+        "english": "thick",
+        "category": "Antonyms",
+        "part": "adjective",
+        "usage": "Opposite of 薄. Use for books, clothes, materials, meat slices.",
+        "examples": ["这本书很厚。— This book is thick.", "厚衣服。— Thick clothes."],
+        "hint": "Opposite pair: 厚 — 薄.",
+    },
+    {
+        "hanzi": "薄",
+        "pinyin": "báo",
+        "english": "thin",
+        "category": "Antonyms",
+        "part": "adjective",
+        "usage": "Opposite of 厚. Use for physical thinness of objects/materials.",
+        "examples": ["这张纸很薄。— This paper is thin.", "薄衣服。— Thin clothes."],
+        "hint": "Opposite pair: 厚 — 薄.",
+    },
+    {
+        "hanzi": "好听",
+        "pinyin": "hǎotīng",
+        "english": "pleasant to hear; sounds good",
+        "category": "Antonyms",
+        "part": "adjective",
+        "usage": "Use 好听 for sounds, voices, songs, music.",
+        "examples": ["这首歌很好听。— This song sounds good.", "她唱歌很好听。— Her singing sounds good."],
+        "hint": "听 means listen → sound quality.",
+    },
+    {
+        "hanzi": "难听",
+        "pinyin": "nántīng",
+        "english": "unpleasant to hear; sounds bad",
+        "category": "Antonyms",
+        "part": "adjective",
+        "usage": "Opposite of 好听. Use for unpleasant sounds, voices, songs, or rude words.",
+        "examples": ["这个声音很难听。— This sound is unpleasant.", "他说的话很难听。— What he said sounded harsh/rude."],
+        "hint": "Opposite pair: 好听 — 难听.",
+    },
+    {
+        "hanzi": "好喝",
+        "pinyin": "hǎohē",
+        "english": "tasty to drink",
+        "category": "Antonyms",
+        "part": "adjective",
+        "usage": "Use 好喝 only for drinks/liquids.",
+        "examples": ["这个茶很好喝。— This tea tastes good.", "咖啡好喝吗？— Does the coffee taste good?"],
+        "hint": "喝 means drink → drink quality.",
+    },
+    {
+        "hanzi": "难喝",
+        "pinyin": "nánhē",
+        "english": "bad-tasting to drink",
+        "category": "Antonyms",
+        "part": "adjective",
+        "usage": "Opposite of 好喝. Use only for drinks/liquids.",
+        "examples": ["这个药很难喝。— This medicine tastes bad.", "这杯咖啡不好喝。— This coffee does not taste good."],
+        "hint": "Opposite pair: 好喝 — 难喝.",
+    },
+    {
+        "hanzi": "好吃",
+        "pinyin": "hǎochī",
+        "english": "tasty to eat",
+        "category": "Antonyms",
+        "part": "adjective",
+        "usage": "Use 好吃 only for food.",
+        "examples": ["这个菜很好吃。— This dish is delicious.", "晚饭好吃吗？— Is dinner tasty?"],
+        "hint": "吃 means eat → food quality.",
+    },
+    {
+        "hanzi": "难吃",
+        "pinyin": "nánchī",
+        "english": "bad-tasting to eat",
+        "category": "Antonyms",
+        "part": "adjective",
+        "usage": "Opposite of 好吃. Use only for food.",
+        "examples": ["这个菜很难吃。— This dish tastes bad.", "学校的午饭不难吃。— The school lunch is not bad."],
+        "hint": "Opposite pair: 好吃 — 难吃.",
+    },
+    {
+        "hanzi": "肥肉",
+        "pinyin": "féiròu",
+        "english": "fatty meat",
+        "category": "Food",
+        "part": "noun",
+        "usage": "Opposite of 瘦肉. 肥 here means fatty, not just fat as a body adjective.",
+        "examples": ["我不喜欢肥肉。— I do not like fatty meat.", "肥肉太油了。— Fatty meat is too oily."],
+        "hint": "Opposite pair: 肥肉 — 瘦肉.",
+    },
+    {
+        "hanzi": "瘦肉",
+        "pinyin": "shòuròu",
+        "english": "lean meat",
+        "category": "Food",
+        "part": "noun",
+        "usage": "Opposite of 肥肉. 瘦肉 means meat without much fat.",
+        "examples": ["我喜欢瘦肉。— I like lean meat.", "请买一点儿瘦肉。— Please buy a little lean meat."],
+        "hint": "Opposite pair: 肥肉 — 瘦肉.",
     },
 ]
 
+# Precomputed values make reruns faster.
+SEARCH_TEXT = [
+    " ".join(
+        [
+            card["hanzi"],
+            card["pinyin"],
+            card["english"],
+            card["category"],
+            card["part"],
+            card["usage"],
+            " ".join(card["examples"]),
+            card["hint"],
+        ]
+    ).lower()
+    for card in CARDS
+]
+CATEGORIES = ["All"] + sorted({card["category"] for card in CARDS})
 
-# ------------------------------------------------------------
-# CSS
-# ------------------------------------------------------------
 
+# ============================================================
+# Styling
+# ============================================================
 st.markdown(
     """
     <style>
-    #MainMenu, footer, header {visibility: hidden;}
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@500;700;900&family=Inter:wght@500;700;900&display=swap');
 
-    .stApp {
+    :root {
+        --bg1: #07111f;
+        --bg2: #171a31;
+        --card: rgba(255,255,255,.075);
+        --card2: rgba(255,255,255,.105);
+        --border: rgba(255,255,255,.14);
+        --text: rgba(255,255,255,.94);
+        --muted: rgba(255,255,255,.68);
+        --yellow: #fde047;
+        --green: #22c55e;
+        --red: #fb7185;
+        --blue: #38bdf8;
+    }
+
+    html, body, [data-testid="stAppViewContainer"] {
         background:
-            radial-gradient(circle at 12% 7%, rgba(56,189,248,.22), transparent 30%),
-            radial-gradient(circle at 92% 8%, rgba(250,204,21,.12), transparent 26%),
-            linear-gradient(135deg, #06101c 0%, #0d1726 44%, #18192f 100%);
-        color: white;
+            radial-gradient(circle at 16% 8%, rgba(56,189,248,.24), transparent 34%),
+            radial-gradient(circle at 84% 18%, rgba(250,204,21,.12), transparent 24%),
+            linear-gradient(135deg, var(--bg1), var(--bg2));
+        color: var(--text);
+        font-family: Inter, "Noto Sans SC", sans-serif;
+    }
+
+    [data-testid="stHeader"] {
+        background: transparent;
     }
 
     .block-container {
-        padding-top: 1.45rem;
-        padding-bottom: 2.2rem;
-        max-width: 1250px;
-    }
-
-    label {
-        color: rgba(255,255,255,.82) !important;
-        font-weight: 850 !important;
+        max-width: 1180px;
+        padding-top: 2.2rem;
+        padding-bottom: 3rem;
     }
 
     .hero {
-        padding: 25px 28px;
-        border-radius: 30px;
-        background:
-            linear-gradient(135deg, rgba(255,255,255,.16), rgba(255,255,255,.055));
-        border: 1px solid rgba(255,255,255,.13);
-        box-shadow: 0 26px 80px rgba(0,0,0,.34);
+        border: 1px solid var(--border);
+        border-radius: 28px;
+        padding: 24px 28px;
+        background: linear-gradient(135deg, rgba(255,255,255,.10), rgba(255,255,255,.045));
+        box-shadow: 0 20px 70px rgba(0,0,0,.24);
         margin-bottom: 18px;
     }
 
     .title {
-        margin: 0;
-        font-size: clamp(34px, 5.8vw, 68px);
-        line-height: .95;
+        font-size: 34px;
+        line-height: 1.05;
         font-weight: 950;
-        letter-spacing: -.055em;
+        margin: 0;
+        letter-spacing: -.04em;
     }
 
     .subtitle {
-        margin-top: 12px;
-        max-width: 900px;
-        font-size: 16px;
-        color: rgba(255,255,255,.72);
-        line-height: 1.45;
+        margin: 10px 0 0 0;
+        color: var(--muted);
+        font-size: 15px;
+        max-width: 760px;
     }
 
     .metric-card {
-        padding: 13px 15px;
+        border: 1px solid var(--border);
         border-radius: 20px;
-        text-align: center;
-        background: rgba(255,255,255,.08);
-        border: 1px solid rgba(255,255,255,.10);
-        box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+        padding: 15px 17px;
+        background: rgba(255,255,255,.07);
     }
 
-    .metric-number {
-        font-size: 27px;
+    .metric-value {
+        font-size: 24px;
         font-weight: 950;
-        color: #fde047;
+        line-height: 1;
     }
 
     .metric-label {
+        color: var(--muted);
+        margin-top: 6px;
         font-size: 12px;
-        letter-spacing: .08em;
         text-transform: uppercase;
+        letter-spacing: .12em;
         font-weight: 900;
-        color: rgba(255,255,255,.58);
     }
 
-    .flash-card {
-        min-height: 500px;
-        padding: 34px;
-        border-radius: 32px;
+    .flashcard {
+        min-height: 455px;
+        border-radius: 30px;
         border: 1px solid rgba(255,255,255,.16);
         background:
-            radial-gradient(circle at top left, rgba(34,197,94,.17), transparent 35%),
-            radial-gradient(circle at bottom right, rgba(250,204,21,.14), transparent 30%),
-            linear-gradient(135deg, rgba(255,255,255,.14), rgba(255,255,255,.055));
-        box-shadow: 0 30px 90px rgba(0,0,0,.42);
+            radial-gradient(circle at 18% 10%, rgba(45,212,191,.18), transparent 35%),
+            radial-gradient(circle at 84% 88%, rgba(250,204,21,.12), transparent 28%),
+            linear-gradient(135deg, rgba(255,255,255,.12), rgba(255,255,255,.055));
+        box-shadow: 0 26px 80px rgba(0,0,0,.30);
+        padding: 32px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
     }
 
-    .card-top {
+    .top-row {
         display: flex;
         justify-content: space-between;
-        gap: 12px;
-        align-items: center;
-        margin-bottom: 18px;
-        flex-wrap: wrap;
+        gap: 14px;
+        align-items: start;
     }
 
     .pill {
         display: inline-flex;
         align-items: center;
-        padding: 8px 14px;
+        border: 1px solid rgba(253,224,71,.65);
+        color: var(--yellow);
         border-radius: 999px;
+        padding: 9px 14px;
         font-size: 13px;
         font-weight: 950;
-        border: 1px solid rgba(253,224,71,.35);
-        background: rgba(253,224,71,.10);
-        color: #fde047;
     }
 
     .mode-label {
-        text-align: center;
-        color: rgba(255,255,255,.52);
-        font-size: 13px;
-        font-weight: 950;
+        color: rgba(255,255,255,.58);
         text-transform: uppercase;
-        letter-spacing: .12em;
-        margin-bottom: 10px;
-    }
-
-    .front-hanzi {
-        font-size: clamp(76px, 13vw, 174px);
+        letter-spacing: .14em;
+        font-size: 12px;
         font-weight: 950;
-        line-height: 1;
         text-align: center;
-        text-shadow: 0 20px 70px rgba(0,0,0,.42);
-        margin: 30px 0;
-        word-break: keep-all;
-    }
-
-    .front-english {
-        font-size: clamp(34px, 4.9vw, 66px);
-        font-weight: 950;
-        line-height: 1.08;
-        text-align: center;
-        text-shadow: 0 16px 58px rgba(0,0,0,.38);
-        margin: 44px auto;
-        max-width: 880px;
-    }
-
-    .front-usage {
-        font-size: clamp(22px, 2.5vw, 34px);
-        font-weight: 850;
-        line-height: 1.25;
-        text-align: left;
-        text-shadow: 0 14px 48px rgba(0,0,0,.28);
-        margin: 26px auto;
-        max-width: 880px;
-        color: rgba(255,255,255,.97);
+        margin-bottom: 18px;
     }
 
     .prompt {
         text-align: center;
-        color: rgba(255,255,255,.72);
-        font-size: 16px;
-        line-height: 1.5;
-        margin-top: 10px;
+        font-weight: 950;
+        color: white;
+        text-shadow: 0 10px 28px rgba(0,0,0,.24);
+        word-break: keep-all;
     }
 
-    .side-box {
-        padding: 22px;
+    .prompt.hanzi {
+        font-family: "Noto Sans SC", Inter, sans-serif;
+        font-size: clamp(82px, 12vw, 150px);
+        line-height: 1.05;
+        letter-spacing: -.05em;
+    }
+
+    .prompt.english {
+        font-size: clamp(38px, 6vw, 76px);
+        line-height: 1.05;
+        letter-spacing: -.045em;
+    }
+
+    .prompt.usage {
+        font-size: clamp(31px, 4.5vw, 58px);
+        line-height: 1.10;
+        letter-spacing: -.035em;
+        max-width: 820px;
+        margin: 0 auto;
+    }
+
+    .instruction {
+        text-align: center;
+        color: rgba(255,255,255,.78);
+        font-weight: 700;
+        font-size: 15px;
+    }
+
+    .answer-box {
+        border: 1px solid var(--border);
         border-radius: 24px;
-        border: 1px solid rgba(255,255,255,.12);
-        background: rgba(255,255,255,.08);
-        margin-bottom: 16px;
-        box-shadow: inset 0 1px 0 rgba(255,255,255,.03);
+        background: rgba(255,255,255,.075);
+        padding: 20px;
+        margin-bottom: 14px;
     }
 
     .box-title {
-        color: #fde047;
-        font-size: 13px;
-        font-weight: 950;
-        letter-spacing: .08em;
+        color: var(--yellow);
+        font-size: 12px;
         text-transform: uppercase;
-        margin-bottom: 9px;
+        letter-spacing: .16em;
+        font-weight: 950;
+        margin-bottom: 10px;
     }
 
     .pinyin {
-        text-align: center;
-        color: #fde047;
-        font-size: 30px;
+        color: rgba(255,255,255,.88);
+        font-size: 22px;
         font-weight: 950;
     }
 
     .meaning {
-        text-align: center;
-        font-size: 20px;
-        font-weight: 850;
-        margin-top: 5px;
+        font-size: 17px;
+        color: rgba(255,255,255,.86);
+        font-weight: 800;
     }
 
     .muted {
-        color: rgba(255,255,255,.74);
-        line-height: 1.56;
+        color: rgba(255,255,255,.70);
+        font-size: 15px;
+        line-height: 1.55;
     }
 
     .example {
-        background: rgba(0,0,0,.18);
-        border: 1px solid rgba(255,255,255,.08);
-        border-radius: 14px;
-        padding: 10px 12px;
-        margin: 8px 0;
-        color: rgba(255,255,255,.82);
+        border-left: 3px solid rgba(253,224,71,.75);
+        padding-left: 12px;
+        margin: 10px 0;
+        color: rgba(255,255,255,.84);
         line-height: 1.45;
     }
 
-    .meta-chip-wrap {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-        margin-top: 10px;
-    }
-
-    .meta-chip {
-        display: inline-flex;
-        padding: 7px 12px;
-        border-radius: 999px;
-        background: rgba(255,255,255,.08);
-        border: 1px solid rgba(255,255,255,.12);
-        color: rgba(255,255,255,.84);
-        font-size: 12px;
-        font-weight: 850;
-    }
-
     .subtle-caption {
-        margin: 14px 0 8px 2px;
-        color: rgba(255,255,255,.60);
+        margin: 16px 0 8px 2px;
+        color: rgba(255,255,255,.62);
         font-size: 12px;
         font-weight: 950;
         text-transform: uppercase;
         letter-spacing: .16em;
+    }
+
+    .deck-card {
+        border: 1px solid rgba(255,255,255,.10);
+        border-radius: 18px;
+        padding: 13px 14px;
+        margin-bottom: 10px;
+        background: rgba(255,255,255,.055);
+    }
+
+    .deck-hanzi {
+        font-family: "Noto Sans SC", Inter, sans-serif;
+        font-size: 25px;
+        font-weight: 950;
+    }
+
+    .deck-meta {
+        font-size: 12px;
+        color: rgba(255,255,255,.64);
+        line-height: 1.35;
     }
 
     div[data-testid="stButton"] {
@@ -1289,42 +1294,17 @@ st.markdown(
         box-shadow: 0 18px 46px rgba(0,0,0,.16);
     }
 
-    .deck-card {
-        padding: 14px 16px;
-        border-radius: 18px;
-        background: rgba(255,255,255,.07);
-        border: 1px solid rgba(255,255,255,.10);
-        margin-bottom: 10px;
-        min-height: 106px;
+    label {
+        color: rgba(255,255,255,.88) !important;
+        font-weight: 800 !important;
     }
 
-    .deck-hanzi {
-        font-size: 25px;
-        font-weight: 950;
-        color: white;
-        line-height: 1.18;
+    input, textarea, [data-baseweb="select"] {
+        border-radius: 16px !important;
     }
 
-    .deck-meta {
-        font-size: 13px;
-        color: rgba(255,255,255,.63);
-        line-height: 1.35;
-    }
-
-    .small-note {
-        color: rgba(255,255,255,.62);
-        font-size: 13px;
-        line-height: 1.45;
-    }
-
-    @media (max-width: 900px) {
-        .flash-card {
-            min-height: 430px;
-            padding: 24px;
-        }
-        .front-hanzi {
-            font-size: clamp(68px, 22vw, 132px);
-        }
+    .stExpander {
+        border-radius: 22px !important;
     }
     </style>
     """,
@@ -1332,238 +1312,230 @@ st.markdown(
 )
 
 
-# ------------------------------------------------------------
-# Helpers
-# ------------------------------------------------------------
+# ============================================================
+# Session state and card logic
+# ============================================================
+if "known" not in st.session_state:
+    st.session_state.known = set()
+if "again" not in st.session_state:
+    st.session_state.again = set()
+if "revealed" not in st.session_state:
+    st.session_state.revealed = False
+if "pos" not in st.session_state:
+    st.session_state.pos = 0
+if "order" not in st.session_state:
+    st.session_state.order = []
+if "filter_key" not in st.session_state:
+    st.session_state.filter_key = None
 
-def safe(text):
-    return html.escape(str(text), quote=False)
+
+def matches_filter(i: int, category: str, search: str) -> bool:
+    card = CARDS[i]
+    category_ok = category == "All" or card["category"] == category
+    search_ok = not search or search in SEARCH_TEXT[i]
+    return category_ok and search_ok
 
 
-def filtered_indices(category, search):
+def get_active_indices(category: str, search: str) -> list[int]:
+    """Cards that match filters and have NOT been marked known."""
     search = search.strip().lower()
-    results = []
-
-    for i, card in enumerate(CARDS):
-        combined = " ".join(
-            [
-                card["hanzi"],
-                card["pinyin"],
-                card["english"],
-                card["category"],
-                card["part"],
-                card["usage"],
-                " ".join(card["examples"]),
-                card["hint"],
-                " ".join(card.get("related", [])),
-            ]
-        ).lower()
-
-        category_ok = category == "All" or card["category"] == category
-        search_ok = not search or search in combined
-
-        if category_ok and search_ok:
-            results.append(i)
-
-    return results
+    return [
+        i
+        for i in range(len(CARDS))
+        if i not in st.session_state.known and matches_filter(i, category, search)
+    ]
 
 
-def initialize_state():
-    defaults = {
-        "known": set(),
-        "again": set(),
-        "revealed": False,
-        "pos": 0,
-        "order": list(range(len(CARDS))),
-        "filter_key": None,
-        "active_indices": list(range(len(CARDS))),
-    }
-
-    for key, value in defaults.items():
-        if key not in st.session_state:
-            st.session_state[key] = value
+def get_browser_indices(category: str, search: str, include_known: bool) -> list[int]:
+    """Cards for the deck browser."""
+    search = search.strip().lower()
+    result = []
+    for i in range(len(CARDS)):
+        if not include_known and i in st.session_state.known:
+            continue
+        if matches_filter(i, category, search):
+            result.append(i)
+    return result
 
 
-def apply_filters_if_needed(category, search):
-    new_key = (category, search.strip().lower())
+def set_order(new_order: list[int]) -> None:
+    st.session_state.order = list(new_order)
+    st.session_state.pos = 0
+    st.session_state.revealed = False
 
-    if st.session_state.filter_key != new_key:
-        active = filtered_indices(category, search)
-        st.session_state.filter_key = new_key
-        st.session_state.active_indices = active
-        st.session_state.order = active.copy()
-        st.session_state.pos = 0
+
+def sync_order(category: str, search: str) -> None:
+    """
+    Keep the current shuffled order unless the filter changed.
+    Also guarantees that known cards are removed from the practice queue.
+    """
+    search_key = search.strip().lower()
+    key = (category, search_key)
+
+    active = get_active_indices(category, search_key)
+    active_set = set(active)
+
+    if st.session_state.filter_key != key:
+        st.session_state.filter_key = key
+        set_order(active)
+        return
+
+    # Do not rebuild/shuffle every rerun. Only remove known/nonmatching cards and append newly available cards.
+    cleaned_order = [i for i in st.session_state.order if i in active_set]
+    missing = [i for i in active if i not in cleaned_order]
+
+    if cleaned_order != st.session_state.order or missing:
+        st.session_state.order = cleaned_order + missing
+        if st.session_state.order:
+            st.session_state.pos %= len(st.session_state.order)
+        else:
+            st.session_state.pos = 0
         st.session_state.revealed = False
 
-    return st.session_state.active_indices
 
-
-def current_index():
+def current_index() -> int | None:
     if not st.session_state.order:
         return None
     st.session_state.pos %= len(st.session_state.order)
     return st.session_state.order[st.session_state.pos]
 
 
-def next_card():
+def next_card() -> None:
     if st.session_state.order:
         st.session_state.pos = (st.session_state.pos + 1) % len(st.session_state.order)
     st.session_state.revealed = False
 
 
-def shuffle_deck():
+def mark_known_and_remove(idx: int) -> None:
+    """
+    Mark the card known and immediately remove it from the active queue.
+    This guarantees it will not appear again until Reset progress.
+    """
+    st.session_state.known.add(idx)
+    st.session_state.again.discard(idx)
+
+    order = st.session_state.order
+    if idx in order:
+        removed_at = order.index(idx)
+        order.pop(removed_at)
+
+        if not order:
+            st.session_state.pos = 0
+        elif removed_at < st.session_state.pos:
+            st.session_state.pos -= 1
+        elif st.session_state.pos >= len(order):
+            st.session_state.pos = 0
+
+    st.session_state.revealed = False
+
+
+def shuffle_deck() -> None:
     if len(st.session_state.order) <= 1:
+        st.session_state.revealed = False
         return
 
-    old_current = current_index()
-    new_order = st.session_state.order.copy()
-    random.shuffle(new_order)
+    current = current_index()
+    random.shuffle(st.session_state.order)
 
-    # Avoid the feeling that nothing happened if the same card lands first.
-    if old_current is not None and len(new_order) > 1 and new_order[0] == old_current:
-        new_order = new_order[1:] + new_order[:1]
+    # Avoid making Shuffle feel like it did nothing.
+    if st.session_state.order[0] == current:
+        st.session_state.order.append(st.session_state.order.pop(0))
 
-    st.session_state.order = new_order
     st.session_state.pos = 0
     st.session_state.revealed = False
 
 
-def reset_progress():
+def reset_progress(category: str, search: str) -> None:
     st.session_state.known = set()
     st.session_state.again = set()
-    st.session_state.revealed = False
-    st.session_state.pos = 0
+    st.session_state.filter_key = (category, search.strip().lower())
+    set_order(get_active_indices(category, search))
 
 
-initialize_state()
-
-
-# ------------------------------------------------------------
+# ============================================================
 # Header
-# ------------------------------------------------------------
-
+# ============================================================
 st.markdown(
-    f"""
+    """
     <div class="hero">
         <p class="title">Chinese Flashcards</p>
         <p class="subtitle">
-            Memorize the characters first, then reveal pinyin, meaning, usage, examples, and related words.
-            This version includes the verbs, object words, class names, event words, and antonyms from your screenshots.
+            Practice recognizing characters without pinyin first. If you press <b>I knew it</b>,
+            that card leaves the deck completely until you reset progress.
         </p>
-        <div class="small-note">Total cards in this deck: <b>{len(CARDS)}</b></div>
     </div>
     """,
     unsafe_allow_html=True,
 )
 
-
-# ------------------------------------------------------------
-# Top controls
-# ------------------------------------------------------------
-
-categories = ["All"] + sorted({card["category"] for card in CARDS})
-
-c1, c2, c3 = st.columns([1.1, 1.1, 1.8])
-with c1:
-    mode = st.selectbox(
-        "Practice mode",
-        ["Hanzi → meaning", "English → Hanzi", "Usage → Hanzi"],
-        index=0,
-    )
-with c2:
-    category = st.selectbox("Category", categories, index=0)
-with c3:
-    search = st.text_input("Search", placeholder="Try: 邮件, 生日晚会, school, antonyms, expensive...")
-
-active = apply_filters_if_needed(category, search)
-
-if not st.session_state.order:
-    st.warning("No cards match your filters.")
-    st.stop()
-
-
-# ------------------------------------------------------------
-# Metrics
-# ------------------------------------------------------------
-
-known_count = len(st.session_state.known)
-again_count = len(st.session_state.again)
-progress = round(100 * known_count / len(CARDS))
-
 m1, m2, m3, m4 = st.columns(4)
+remaining_count = len(CARDS) - len(st.session_state.known)
 with m1:
-    st.markdown(
-        f"<div class='metric-card'><div class='metric-number'>{known_count}</div><div class='metric-label'>Known</div></div>",
-        unsafe_allow_html=True,
-    )
+    st.markdown(f"<div class='metric-card'><div class='metric-value'>{len(st.session_state.known)}</div><div class='metric-label'>Known</div></div>", unsafe_allow_html=True)
 with m2:
-    st.markdown(
-        f"<div class='metric-card'><div class='metric-number'>{again_count}</div><div class='metric-label'>Review again</div></div>",
-        unsafe_allow_html=True,
-    )
+    st.markdown(f"<div class='metric-card'><div class='metric-value'>{len(st.session_state.again)}</div><div class='metric-label'>Review again</div></div>", unsafe_allow_html=True)
 with m3:
-    st.markdown(
-        f"<div class='metric-card'><div class='metric-number'>{progress}%</div><div class='metric-label'>Progress</div></div>",
-        unsafe_allow_html=True,
-    )
+    st.markdown(f"<div class='metric-card'><div class='metric-value'>{remaining_count}</div><div class='metric-label'>Remaining</div></div>", unsafe_allow_html=True)
 with m4:
-    st.markdown(
-        f"<div class='metric-card'><div class='metric-number'>{len(active)}</div><div class='metric-label'>Active cards</div></div>",
-        unsafe_allow_html=True,
-    )
+    st.markdown(f"<div class='metric-card'><div class='metric-value'>{len(CARDS)}</div><div class='metric-label'>Total cards</div></div>", unsafe_allow_html=True)
 
 st.write("")
 
+# ============================================================
+# Filters
+# ============================================================
+c1, c2, c3 = st.columns([1.1, 1.1, 1.8])
+with c1:
+    mode = st.selectbox("Practice mode", ["Hanzi → meaning", "English → Hanzi", "Usage → Hanzi"])
+with c2:
+    category = st.selectbox("Category", CATEGORIES)
+with c3:
+    search = st.text_input("Search", placeholder="Try: 买, pinyin, school, transportation...")
 
-# ------------------------------------------------------------
-# Current card
-# ------------------------------------------------------------
+sync_order(category, search)
+
+if not st.session_state.order:
+    st.success("No cards left in this filtered deck. You have marked all matching cards as known. Press Reset progress to bring them back.")
+    if st.button("✦ Reset progress", type="primary", use_container_width=True):
+        reset_progress(category, search)
+        st.rerun()
+    st.stop()
 
 idx = current_index()
 card = CARDS[idx]
 
-if idx in st.session_state.known:
-    status = "Known"
-elif idx in st.session_state.again:
-    status = "Review again"
-else:
-    status = "New"
-
-if mode == "Hanzi → meaning":
-    front = card["hanzi"]
-    front_class = "front-hanzi"
-    mode_label = "Hanzi"
-    prompt = "Say the pinyin, meaning, and one possible example sentence. Then click Reveal."
-elif mode == "English → Hanzi":
-    front = card["english"]
-    front_class = "front-english"
-    mode_label = "English meaning"
-    prompt = "Try to remember the Chinese characters before revealing the answer."
-else:
-    front = card["usage"]
-    front_class = "front-usage"
-    mode_label = "Usage clue"
-    prompt = "Read the usage clue and try to guess the Chinese word or phrase."
-
-
-# ------------------------------------------------------------
-# Main layout
-# ------------------------------------------------------------
-
-left, right = st.columns([1.7, 1])
+# ============================================================
+# Main study layout
+# ============================================================
+left, right = st.columns([1.65, 1], gap="large")
 
 with left:
+    if mode == "Hanzi → meaning":
+        prompt_html = f"<div class='prompt hanzi'>{card['hanzi']}</div>"
+        label = "Hanzi"
+        instruction = "Say the pinyin, meaning, and one possible example sentence. Then click Reveal."
+    elif mode == "English → Hanzi":
+        prompt_html = f"<div class='prompt english'>{card['english']}</div>"
+        label = "Meaning"
+        instruction = "Try to write or say the Chinese characters and pinyin. Then click Reveal."
+    else:
+        prompt_html = f"<div class='prompt usage'>{card['usage']}</div>"
+        label = "Usage clue"
+        instruction = "Guess which Chinese word fits this usage. Then click Reveal."
+
     st.markdown(
         f"""
-        <div class="flash-card">
-            <div>
-                <div class="card-top">
-                    <span class="pill">Card {st.session_state.pos + 1} / {len(st.session_state.order)}</span>
-                </div>
-                <div class="mode-label">{safe(mode_label)}</div>
-                <div class="{front_class}">{safe(front)}</div>
+        <div class="flashcard">
+            <div class="top-row">
+                <div class="pill">Card {st.session_state.pos + 1} / {len(st.session_state.order)}</div>
             </div>
-            <div class="prompt">{safe(prompt)}</div>
+
+            <div>
+                <div class="mode-label">{label}</div>
+                {prompt_html}
+            </div>
+
+            <div class="instruction">{instruction}</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -1581,9 +1553,7 @@ with left:
 
         with b2:
             if st.button("✅ I knew it", use_container_width=True):
-                st.session_state.known.add(idx)
-                st.session_state.again.discard(idx)
-                next_card()
+                mark_known_and_remove(idx)
                 st.rerun()
 
         with b3:
@@ -1604,68 +1574,47 @@ with left:
                 st.rerun()
 
         st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
-        c1, c2 = st.columns(2, gap="small")
+        c1b, c2b = st.columns(2, gap="small")
 
-        with c1:
-            if st.button("↺ Restart deck", use_container_width=True):
-                st.session_state.pos = 0
-                st.session_state.revealed = False
+        with c1b:
+            if st.button("↺ Restart filtered deck", use_container_width=True):
+                set_order(get_active_indices(category, search))
                 st.rerun()
 
-        with c2:
+        with c2b:
             if st.button("✦ Reset progress", use_container_width=True):
-                reset_progress()
+                reset_progress(category, search)
                 st.rerun()
-
 
 with right:
     if st.session_state.revealed:
-        examples_html = "".join(
-            f"<div class='example'>{safe(example)}</div>" for example in card["examples"]
-        )
-
-        related_words = card.get("related", [])
-        related_html = (
-            "".join(f"<span class='meta-chip'>{safe(word)}</span>" for word in related_words)
-            if related_words
-            else "<span class='meta-chip'>No related words listed</span>"
-        )
-
+        examples_html = "".join(f"<div class='example'>{example}</div>" for example in card["examples"])
         st.markdown(
             f"""
-            <div class="side-box">
+            <div class="answer-box">
                 <div class="box-title">Answer</div>
-                <div class="pinyin">{safe(card["pinyin"])}</div>
-                <div class="meaning">{safe(card["hanzi"])} · {safe(card["english"])}</div>
+                <div class="pinyin">{card["pinyin"]}</div>
+                <div class="meaning">{card["hanzi"]} · {card["english"]}</div>
             </div>
 
-            <div class="side-box">
-                <div class="box-title">Word info</div>
-                <div class="meta-chip-wrap">
-                    <span class="meta-chip">{safe(card["category"])}</span>
-                    <span class="meta-chip">{safe(card["part"])}</span>
-                    <span class="meta-chip">{safe(status)}</span>
-                </div>
+            <div class="answer-box">
+                <div class="box-title">Grammar / category</div>
+                <div class="meaning">{card["category"]} · {card["part"]}</div>
             </div>
 
-            <div class="side-box">
+            <div class="answer-box">
                 <div class="box-title">How to use it</div>
-                <div class="muted">{safe(card["usage"])}</div>
+                <div class="muted">{card["usage"]}</div>
             </div>
 
-            <div class="side-box">
+            <div class="answer-box">
                 <div class="box-title">Examples</div>
                 {examples_html}
             </div>
 
-            <div class="side-box">
-                <div class="box-title">Related words</div>
-                <div class="meta-chip-wrap">{related_html}</div>
-            </div>
-
-            <div class="side-box">
+            <div class="answer-box">
                 <div class="box-title">Memory hint</div>
-                <div class="muted">{safe(card["hint"])}</div>
+                <div class="muted">{card["hint"]}</div>
             </div>
             """,
             unsafe_allow_html=True,
@@ -1673,39 +1622,52 @@ with right:
     else:
         st.markdown(
             """
-            <div class="side-box">
+            <div class="answer-box">
                 <div class="box-title">Hidden answer</div>
                 <div class="muted">
                     The pinyin, meaning, category, grammar type, usage notes, related words,
-                    and examples stay hidden until you press <b>Reveal</b>.
+                    and examples stay hidden until you press Reveal.
                 </div>
             </div>
             """,
             unsafe_allow_html=True,
         )
 
+# ============================================================
+# Deck browser — collapsed by default for speed
+# ============================================================
+st.write("")
 
-# ------------------------------------------------------------
-# Deck browser
-# ------------------------------------------------------------
+with st.expander("Deck browser", expanded=False):
+    include_known = st.checkbox("Show known cards too", value=False)
+    browser_cards = get_browser_indices(category, search, include_known)
 
-with st.expander("Deck browser", expanded=True):
-    cols = st.columns(3)
+    st.caption(
+        f"Showing {len(browser_cards)} matching card(s). "
+        "This section is collapsed by default so the app reruns faster while studying."
+    )
 
-    for n, card_index in enumerate(st.session_state.order):
-        deck_card = CARDS[card_index]
-        icon = "✅" if card_index in st.session_state.known else "🔁" if card_index in st.session_state.again else "•"
+    if browser_cards:
+        cols = st.columns(3)
+        for n, card_index in enumerate(browser_cards):
+            deck_card = CARDS[card_index]
+            if card_index in st.session_state.known:
+                icon = "✅"
+            elif card_index in st.session_state.again:
+                icon = "🔁"
+            else:
+                icon = "•"
 
-        with cols[n % 3]:
-            st.markdown(
-                f"""
-                <div class="deck-card">
-                    <div class="deck-hanzi">{safe(icon)} {safe(deck_card["hanzi"])}</div>
-                    <div class="deck-meta">{safe(deck_card["pinyin"])} · {safe(deck_card["english"])}</div>
-                    <div class="deck-meta">{safe(deck_card["category"])}</div>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
+            with cols[n % 3]:
+                st.markdown(
+                    f"""
+                    <div class="deck-card">
+                        <div class="deck-hanzi">{icon} {deck_card["hanzi"]}</div>
+                        <div class="deck-meta">{deck_card["pinyin"]} · {deck_card["english"]}</div>
+                        <div class="deck-meta">{deck_card["category"]} · {deck_card["part"]}</div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
 
-st.caption("Tip: use the Category dropdown to drill only Actions, Objects, Class names, Antonyms, etc.")
+st.caption("Tip: cards marked with ✅ disappear from practice immediately and only return after Reset progress.")
