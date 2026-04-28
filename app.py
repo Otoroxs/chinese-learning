@@ -1,9 +1,16 @@
+import html
 import random
+
 import streamlit as st
 
 # ============================================================
 # Chinese Flashcards — Native Streamlit App
-# Paste this entire file into app.py
+# Replace your entire app.py with this file.
+#
+# Changes in this version:
+# 1. Shuffle now really shuffles and does not reset back to the first card.
+# 2. "Usage → Hanzi" and "English → Hanzi" use readable text sizes,
+#    instead of the giant Hanzi font.
 # ============================================================
 
 st.set_page_config(
@@ -320,7 +327,7 @@ CARDS = [
 ]
 
 # -----------------------------
-# CSS
+# Styling
 # -----------------------------
 st.markdown(
     """
@@ -329,15 +336,16 @@ st.markdown(
 
     .stApp {
         background:
-            radial-gradient(circle at 20% 10%, rgba(56,189,248,.22), transparent 30%),
-            radial-gradient(circle at 85% 5%, rgba(250,204,21,.18), transparent 24%),
+            radial-gradient(circle at 18% 8%, rgba(56,189,248,.22), transparent 30%),
+            radial-gradient(circle at 86% 5%, rgba(250,204,21,.16), transparent 26%),
             linear-gradient(135deg, #07111f 0%, #101827 48%, #1a1b33 100%);
         color: white;
     }
 
     .block-container {
         padding-top: 2rem;
-        max-width: 1150px;
+        padding-bottom: 2rem;
+        max-width: 1180px;
     }
 
     .hero {
@@ -350,7 +358,7 @@ st.markdown(
     }
 
     .title {
-        font-size: clamp(36px, 6vw, 72px);
+        font-size: clamp(34px, 6vw, 68px);
         line-height: .95;
         font-weight: 900;
         letter-spacing: -.05em;
@@ -360,7 +368,7 @@ st.markdown(
     .subtitle {
         color: rgba(255,255,255,.70);
         font-size: 17px;
-        max-width: 760px;
+        max-width: 780px;
         margin-top: 12px;
     }
 
@@ -387,22 +395,26 @@ st.markdown(
     }
 
     .flash-card {
-        min-height: 520px;
+        min-height: 500px;
         padding: 34px;
         border-radius: 32px;
         border: 1px solid rgba(255,255,255,.16);
         background:
-            radial-gradient(circle at top left, rgba(34,197,94,.15), transparent 32%),
-            radial-gradient(circle at bottom right, rgba(250,204,21,.15), transparent 28%),
+            radial-gradient(circle at top left, rgba(34,197,94,.16), transparent 32%),
+            radial-gradient(circle at bottom right, rgba(250,204,21,.14), transparent 28%),
             linear-gradient(135deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
         box-shadow: 0 30px 90px rgba(0,0,0,.42);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
     }
 
     .top-row {
         display: flex;
         justify-content: space-between;
         gap: 12px;
-        margin-bottom: 46px;
+        margin-bottom: 26px;
+        flex-wrap: wrap;
     }
 
     .pill {
@@ -413,7 +425,7 @@ st.markdown(
         font-weight: 900;
         border: 1px solid rgba(255,255,255,.16);
         background: rgba(255,255,255,.10);
-        color: rgba(255,255,255,.80);
+        color: rgba(255,255,255,.82);
     }
 
     .gold {
@@ -422,19 +434,52 @@ st.markdown(
         background: rgba(253,224,71,.10);
     }
 
-    .big-hanzi {
-        font-size: clamp(90px, 16vw, 200px);
+    .front-hanzi {
+        font-size: clamp(90px, 16vw, 190px);
         font-weight: 900;
         line-height: .95;
         text-align: center;
         text-shadow: 0 20px 70px rgba(0,0,0,.42);
-        margin: 25px 0;
+        margin: 26px 0;
+        word-break: keep-all;
+    }
+
+    .front-english {
+        font-size: clamp(42px, 6vw, 76px);
+        font-weight: 900;
+        line-height: 1.05;
+        text-align: center;
+        text-shadow: 0 16px 60px rgba(0,0,0,.38);
+        margin: 42px auto;
+        max-width: 860px;
+    }
+
+    .front-usage {
+        font-size: clamp(24px, 3.1vw, 38px);
+        font-weight: 800;
+        line-height: 1.22;
+        text-align: left;
+        text-shadow: 0 14px 48px rgba(0,0,0,.28);
+        margin: 28px auto;
+        max-width: 850px;
+        color: rgba(255,255,255,.96);
+    }
+
+    .mode-label {
+        text-align: center;
+        color: rgba(255,255,255,.48);
+        font-size: 13px;
+        font-weight: 900;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+        margin-bottom: 8px;
     }
 
     .prompt {
         text-align: center;
-        color: rgba(255,255,255,.68);
+        color: rgba(255,255,255,.70);
         font-size: 16px;
+        margin-top: 12px;
     }
 
     .answer-box {
@@ -469,7 +514,8 @@ st.markdown(
     }
 
     .muted {
-        color: rgba(255,255,255,.72);
+        color: rgba(255,255,255,.74);
+        line-height: 1.55;
     }
 
     .example {
@@ -478,6 +524,7 @@ st.markdown(
         border-radius: 14px;
         padding: 10px 12px;
         margin: 8px 0;
+        color: rgba(255,255,255,.82);
     }
 
     .deck-card {
@@ -524,25 +571,19 @@ st.markdown(
 )
 
 # -----------------------------
-# Session state
+# Helper functions
 # -----------------------------
-if "known" not in st.session_state:
-    st.session_state.known = set()
-if "again" not in st.session_state:
-    st.session_state.again = set()
-if "revealed" not in st.session_state:
-    st.session_state.revealed = False
-if "pos" not in st.session_state:
-    st.session_state.pos = 0
-if "order" not in st.session_state:
-    st.session_state.order = list(range(len(CARDS)))
+def safe(text):
+    """Escape text before inserting it into custom HTML."""
+    return html.escape(str(text), quote=False)
 
 
-def get_filtered_cards(category, search):
+def filtered_indices(category, search):
     search = search.strip().lower()
     results = []
+
     for i, card in enumerate(CARDS):
-        text = " ".join(
+        searchable_text = " ".join(
             [
                 card["hanzi"],
                 card["pinyin"],
@@ -551,11 +592,12 @@ def get_filtered_cards(category, search):
                 card["part"],
                 card["usage"],
                 " ".join(card["examples"]),
+                card["hint"],
             ]
         ).lower()
 
         category_ok = category == "All" or card["category"] == category
-        search_ok = not search or search in text
+        search_ok = not search or search in searchable_text
 
         if category_ok and search_ok:
             results.append(i)
@@ -563,15 +605,48 @@ def get_filtered_cards(category, search):
     return results
 
 
-def set_order(new_order):
-    st.session_state.order = new_order
-    st.session_state.pos = 0
-    st.session_state.revealed = False
+def initialize_state():
+    defaults = {
+        "known": set(),
+        "again": set(),
+        "revealed": False,
+        "pos": 0,
+        "order": list(range(len(CARDS))),
+        "filter_key": None,
+        "active_indices": list(range(len(CARDS))),
+        "shuffle_count": 0,
+    }
+
+    for key, value in defaults.items():
+        if key not in st.session_state:
+            st.session_state[key] = value
+
+
+def apply_filters_if_needed(category, search):
+    """
+    Only reset the deck order when the filters actually change.
+
+    This is the important fix for shuffle:
+    the old code recomputed the filtered list every rerun and compared it to
+    the shuffled order, so it accidentally reset the deck after every shuffle.
+    """
+    new_key = (category, search.strip().lower())
+
+    if st.session_state.filter_key != new_key:
+        active = filtered_indices(category, search)
+        st.session_state.filter_key = new_key
+        st.session_state.active_indices = active
+        st.session_state.order = active.copy()
+        st.session_state.pos = 0
+        st.session_state.revealed = False
+
+    return st.session_state.active_indices
 
 
 def current_index():
     if not st.session_state.order:
         return None
+
     st.session_state.pos %= len(st.session_state.order)
     return st.session_state.order[st.session_state.pos]
 
@@ -579,8 +654,36 @@ def current_index():
 def next_card():
     if st.session_state.order:
         st.session_state.pos = (st.session_state.pos + 1) % len(st.session_state.order)
+
     st.session_state.revealed = False
 
+
+def shuffle_deck():
+    if len(st.session_state.order) <= 1:
+        return
+
+    old_current = current_index()
+    new_order = st.session_state.order.copy()
+    random.shuffle(new_order)
+
+    # Guarantee that shuffle visibly changes the first card when possible.
+    if old_current is not None and new_order[0] == old_current:
+        new_order.append(new_order.pop(0))
+
+    st.session_state.order = new_order
+    st.session_state.pos = 0
+    st.session_state.revealed = False
+    st.session_state.shuffle_count += 1
+
+
+def reset_progress():
+    st.session_state.known = set()
+    st.session_state.again = set()
+    st.session_state.revealed = False
+    st.session_state.pos = 0
+
+
+initialize_state()
 
 # -----------------------------
 # Header
@@ -598,43 +701,66 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+# -----------------------------
+# Controls
+# -----------------------------
+categories = ["All"] + sorted({card["category"] for card in CARDS})
+
+control_1, control_2, control_3 = st.columns([1.1, 1.1, 1.8])
+
+with control_1:
+    mode = st.selectbox(
+        "Practice mode",
+        ["Hanzi → meaning", "English → Hanzi", "Usage → Hanzi"],
+        index=0,
+    )
+
+with control_2:
+    category = st.selectbox("Category", categories, index=0)
+
+with control_3:
+    search = st.text_input("Search", placeholder="Try: 买, pinyin, school, transportation...")
+
+active = apply_filters_if_needed(category, search)
+
+if not st.session_state.order:
+    st.warning("No cards match your filters.")
+    st.stop()
+
+# -----------------------------
+# Metrics
+# -----------------------------
 known_count = len(st.session_state.known)
 again_count = len(st.session_state.again)
 progress = round(100 * known_count / len(CARDS))
 
 m1, m2, m3, m4 = st.columns(4)
 with m1:
-    st.markdown(f"<div class='metric-card'><div class='metric-number'>{known_count}</div><div class='metric-label'>Known</div></div>", unsafe_allow_html=True)
+    st.markdown(
+        f"<div class='metric-card'><div class='metric-number'>{known_count}</div><div class='metric-label'>Known</div></div>",
+        unsafe_allow_html=True,
+    )
 with m2:
-    st.markdown(f"<div class='metric-card'><div class='metric-number'>{again_count}</div><div class='metric-label'>Review again</div></div>", unsafe_allow_html=True)
+    st.markdown(
+        f"<div class='metric-card'><div class='metric-number'>{again_count}</div><div class='metric-label'>Review again</div></div>",
+        unsafe_allow_html=True,
+    )
 with m3:
-    st.markdown(f"<div class='metric-card'><div class='metric-number'>{progress}%</div><div class='metric-label'>Progress</div></div>", unsafe_allow_html=True)
+    st.markdown(
+        f"<div class='metric-card'><div class='metric-number'>{progress}%</div><div class='metric-label'>Progress</div></div>",
+        unsafe_allow_html=True,
+    )
 with m4:
-    st.markdown(f"<div class='metric-card'><div class='metric-number'>{len(CARDS)}</div><div class='metric-label'>Total cards</div></div>", unsafe_allow_html=True)
+    st.markdown(
+        f"<div class='metric-card'><div class='metric-number'>{len(active)}</div><div class='metric-label'>Active cards</div></div>",
+        unsafe_allow_html=True,
+    )
 
 st.write("")
 
 # -----------------------------
-# Controls
+# Current card
 # -----------------------------
-categories = ["All"] + sorted(set(card["category"] for card in CARDS))
-
-c1, c2, c3 = st.columns([1.1, 1.1, 1.8])
-with c1:
-    mode = st.selectbox("Practice mode", ["Hanzi → meaning", "English → Hanzi", "Usage → Hanzi"])
-with c2:
-    category = st.selectbox("Category", categories)
-with c3:
-    search = st.text_input("Search", placeholder="Try: 买, pinyin, school, transportation...")
-
-filtered = get_filtered_cards(category, search)
-if filtered != st.session_state.order:
-    set_order(filtered)
-
-if not st.session_state.order:
-    st.warning("No cards match your filters.")
-    st.stop()
-
 idx = current_index()
 card = CARDS[idx]
 
@@ -647,12 +773,18 @@ else:
 
 if mode == "Hanzi → meaning":
     front = card["hanzi"]
+    front_class = "front-hanzi"
+    mode_label = "Hanzi"
     prompt = "Say the pinyin, meaning, and one example sentence. Then reveal."
 elif mode == "English → Hanzi":
     front = card["english"]
+    front_class = "front-english"
+    mode_label = "English meaning"
     prompt = "Try to remember the Chinese characters. Then reveal."
 else:
     front = card["usage"]
+    front_class = "front-usage"
+    mode_label = "Usage clue"
     prompt = "Guess the Chinese word from the usage explanation. Then reveal."
 
 # -----------------------------
@@ -664,12 +796,15 @@ with left:
     st.markdown(
         f"""
         <div class="flash-card">
-            <div class="top-row">
-                <span class="pill gold">Card {st.session_state.pos + 1} / {len(st.session_state.order)}</span>
-                <span class="pill">{card["category"]} · {card["part"]} · {status}</span>
+            <div>
+                <div class="top-row">
+                    <span class="pill gold">Card {st.session_state.pos + 1} / {len(st.session_state.order)}</span>
+                    <span class="pill">{safe(card["category"])} · {safe(card["part"])} · {safe(status)}</span>
+                </div>
+                <div class="mode-label">{safe(mode_label)}</div>
+                <div class="{front_class}">{safe(front)}</div>
             </div>
-            <div class="big-hanzi">{front}</div>
-            <div class="prompt">{prompt}</div>
+            <div class="prompt">{safe(prompt)}</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -703,25 +838,26 @@ with left:
 
     with b5:
         if st.button("Shuffle"):
-            random.shuffle(st.session_state.order)
-            st.session_state.pos = 0
-            st.session_state.revealed = False
+            shuffle_deck()
             st.rerun()
 
 with right:
     if st.session_state.revealed:
-        examples_html = "".join(f"<div class='example'>{example}</div>" for example in card["examples"])
+        examples_html = "".join(
+            f"<div class='example'>{safe(example)}</div>" for example in card["examples"]
+        )
+
         st.markdown(
             f"""
             <div class="answer-box">
                 <div class="box-title">Answer</div>
-                <div class="pinyin">{card["pinyin"]}</div>
-                <div class="meaning">{card["hanzi"]} · {card["english"]}</div>
+                <div class="pinyin">{safe(card["pinyin"])}</div>
+                <div class="meaning">{safe(card["hanzi"])} · {safe(card["english"])}</div>
             </div>
 
             <div class="answer-box">
                 <div class="box-title">How to use it</div>
-                <div class="muted">{card["usage"]}</div>
+                <div class="muted">{safe(card["usage"])}</div>
             </div>
 
             <div class="answer-box">
@@ -731,7 +867,7 @@ with right:
 
             <div class="answer-box">
                 <div class="box-title">Memory hint</div>
-                <div class="muted">{card["hint"]}</div>
+                <div class="muted">{safe(card["hint"])}</div>
             </div>
             """,
             unsafe_allow_html=True,
@@ -750,12 +886,29 @@ with right:
         )
 
 # -----------------------------
-# Deck browser
+# Extra controls
 # -----------------------------
 st.write("")
 
+extra_1, extra_2, extra_3 = st.columns([1, 1, 3])
+
+with extra_1:
+    if st.button("Restart deck"):
+        st.session_state.pos = 0
+        st.session_state.revealed = False
+        st.rerun()
+
+with extra_2:
+    if st.button("Reset progress"):
+        reset_progress()
+        st.rerun()
+
+# -----------------------------
+# Deck browser
+# -----------------------------
 with st.expander("Deck browser", expanded=True):
     cols = st.columns(3)
+
     for n, card_index in enumerate(st.session_state.order):
         deck_card = CARDS[card_index]
         icon = "✅" if card_index in st.session_state.known else "🔁" if card_index in st.session_state.again else "•"
@@ -764,9 +917,9 @@ with st.expander("Deck browser", expanded=True):
             st.markdown(
                 f"""
                 <div class="deck-card">
-                    <div class="deck-hanzi">{icon} {deck_card["hanzi"]}</div>
-                    <div class="deck-meta">{deck_card["pinyin"]} · {deck_card["english"]}</div>
-                    <div class="deck-meta">{deck_card["category"]} · {deck_card["part"]}</div>
+                    <div class="deck-hanzi">{safe(icon)} {safe(deck_card["hanzi"])}</div>
+                    <div class="deck-meta">{safe(deck_card["pinyin"])} · {safe(deck_card["english"])}</div>
+                    <div class="deck-meta">{safe(deck_card["category"])} · {safe(deck_card["part"])}</div>
                 </div>
                 """,
                 unsafe_allow_html=True,
