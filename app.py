@@ -1233,44 +1233,60 @@ st.markdown(
         font-weight: 850;
     }
 
-    .action-card {
-        margin-top: 12px;
-        padding: 15px;
-        border-radius: 25px;
-        background:
-            linear-gradient(135deg, rgba(255,255,255,.11), rgba(255,255,255,.055));
-        border: 1px solid rgba(255,255,255,.12);
-        box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 20px 50px rgba(0,0,0,.22);
-    }
-
-    .action-heading {
-        font-size: 13px;
+    .subtle-caption {
+        margin: 14px 0 8px 2px;
+        color: rgba(255,255,255,.60);
+        font-size: 12px;
         font-weight: 950;
         text-transform: uppercase;
-        letter-spacing: .12em;
-        color: rgba(255,255,255,.62);
-        margin: 0 0 10px 4px;
+        letter-spacing: .16em;
+    }
+
+    div[data-testid="stButton"] {
+        width: 100%;
     }
 
     div[data-testid="stButton"] > button {
         width: 100%;
-        min-height: 49px;
-        border-radius: 15px;
+        min-height: 54px;
+        border-radius: 18px;
         border: 1px solid rgba(255,255,255,.14);
-        padding: .75rem .9rem;
+        padding: .82rem 1rem;
         font-weight: 900;
         font-size: 15px;
-        background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.09));
+        letter-spacing: -.01em;
+        background: linear-gradient(180deg, rgba(255,255,255,.17), rgba(255,255,255,.085));
         color: white;
-        transition: transform .12s ease, border-color .12s ease, background .12s ease;
-        box-shadow: 0 8px 20px rgba(0,0,0,.20);
+        transition: transform .12s ease, border-color .12s ease, background .12s ease, box-shadow .12s ease;
+        box-shadow: 0 10px 24px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.05);
     }
 
     div[data-testid="stButton"] > button:hover {
         transform: translateY(-1px);
         border-color: rgba(253,224,71,.75);
-        background: linear-gradient(180deg, rgba(255,255,255,.20), rgba(255,255,255,.12));
+        background: linear-gradient(180deg, rgba(255,255,255,.23), rgba(255,255,255,.12));
         color: white;
+        box-shadow: 0 14px 28px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.07);
+    }
+
+    div[data-testid="stButton"] > button[kind="primary"] {
+        background: linear-gradient(180deg, #fde047, #facc15);
+        border-color: rgba(253,224,71,.95);
+        color: #0b1120;
+        box-shadow: 0 14px 32px rgba(250,204,21,.22);
+    }
+
+    div[data-testid="stButton"] > button[kind="primary"]:hover {
+        background: linear-gradient(180deg, #fef08a, #fde047);
+        color: #0b1120;
+        box-shadow: 0 16px 36px rgba(250,204,21,.28);
+    }
+
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+        border-radius: 24px;
+        border: 1px solid rgba(255,255,255,.12);
+        background: linear-gradient(180deg, rgba(255,255,255,.085), rgba(255,255,255,.045));
+        box-shadow: 0 18px 46px rgba(0,0,0,.16);
     }
 
     .deck-card {
@@ -1553,41 +1569,53 @@ with left:
         unsafe_allow_html=True,
     )
 
-    st.markdown("<div class='action-card'>", unsafe_allow_html=True)
-    st.markdown("<div class='action-heading'>Study actions</div>", unsafe_allow_html=True)
+    st.markdown("<div class='subtle-caption'>Study actions</div>", unsafe_allow_html=True)
 
-    b1, b2, b3, b4, b5 = st.columns(5)
+    with st.container(border=True):
+        b1, b2, b3, b4, b5 = st.columns([1.04, 1.08, 1.20, 0.90, 0.98], gap="small")
 
-    with b1:
-        if st.button("Reveal", use_container_width=True):
-            st.session_state.revealed = True
-            st.rerun()
+        with b1:
+            if st.button("👁 Reveal", type="primary", use_container_width=True):
+                st.session_state.revealed = True
+                st.rerun()
 
-    with b2:
-        if st.button("I knew it", use_container_width=True):
-            st.session_state.known.add(idx)
-            st.session_state.again.discard(idx)
-            next_card()
-            st.rerun()
+        with b2:
+            if st.button("✅ I knew it", use_container_width=True):
+                st.session_state.known.add(idx)
+                st.session_state.again.discard(idx)
+                next_card()
+                st.rerun()
 
-    with b3:
-        if st.button("Review again", use_container_width=True):
-            st.session_state.again.add(idx)
-            st.session_state.known.discard(idx)
-            next_card()
-            st.rerun()
+        with b3:
+            if st.button("🔁 Review again", use_container_width=True):
+                st.session_state.again.add(idx)
+                st.session_state.known.discard(idx)
+                next_card()
+                st.rerun()
 
-    with b4:
-        if st.button("Next", use_container_width=True):
-            next_card()
-            st.rerun()
+        with b4:
+            if st.button("➡ Next", use_container_width=True):
+                next_card()
+                st.rerun()
 
-    with b5:
-        if st.button("Shuffle", use_container_width=True):
-            shuffle_deck()
-            st.rerun()
+        with b5:
+            if st.button("🔀 Shuffle", use_container_width=True):
+                shuffle_deck()
+                st.rerun()
 
-    st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
+        c1, c2 = st.columns(2, gap="small")
+
+        with c1:
+            if st.button("↺ Restart deck", use_container_width=True):
+                st.session_state.pos = 0
+                st.session_state.revealed = False
+                st.rerun()
+
+        with c2:
+            if st.button("✦ Reset progress", use_container_width=True):
+                reset_progress()
+                st.rerun()
 
 
 with right:
@@ -1655,25 +1683,6 @@ with right:
             """,
             unsafe_allow_html=True,
         )
-
-
-# ------------------------------------------------------------
-# Extra controls
-# ------------------------------------------------------------
-
-st.write("")
-x1, x2, x3 = st.columns([1, 1, 3])
-
-with x1:
-    if st.button("Restart deck", use_container_width=True):
-        st.session_state.pos = 0
-        st.session_state.revealed = False
-        st.rerun()
-
-with x2:
-    if st.button("Reset progress", use_container_width=True):
-        reset_progress()
-        st.rerun()
 
 
 # ------------------------------------------------------------
