@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chinese Verb Flashcards</title>
+  <style>
+    :root {
+      --bg0: #060816;
+      --bg1: #111827;
+      --glass: rgba(255,255,255,.105);
+      --glass2: rgba(255,255,255,.155);
+      --line: rgba(255,255,255,.18);
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --soft: #94a3b8;
+      --yellow: #facc15;
+      --blue: #38bdf8;
+      --green: #22c55e;
+      --red: #ef4444;
+      --purple: #a78bfa;
+      --shadow: rgba(0,0,0,.42);
+      --radius: 28px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% 10%, rgba(56,189,248,.36), transparent 28%),
+        radial-gradient(circle at 90% 18%, rgba(167,139,250,.28), transparent 25%),
+        radial-gradient(circle at 70% 95%, rgba(250,204,21,.18), transparent 28%),
+        linear-gradient(135deg, #020617, #0f172a 55%, #111827);
+      padding: 24px;
+    }
+
+    .app {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.3fr .7fr;
+      gap: 18px;
+      align-items: stretch;
+      margin-bottom: 18px;
+    }
+
+    .hero-main, .hero-side, .panel, .card-shell {
+      background: var(--glass);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 24px 70px var(--shadow);
+      backdrop-filter: blur(22px);
+    }
+
+    .hero-main {
+      padding: 28px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero-main::after {
+      content: "中文";
+      position: absolute;
+      right: -20px;
+      bottom: -52px;
+      font-size: 10rem;
+      font-weight: 900;
+      opacity: .06;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2.15rem, 6vw, 4.6rem);
+      line-height: .95;
+      letter-spacing: -.06em;
+    }
+
+    .subtitle {
+      max-width: 710px;
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 1.04rem;
+      margin: 16px 0 0;
+    }
+
+    .hero-side {
+      padding: 22px;
+      display: grid;
+      align-content: center;
+      gap: 12px;
+    }
+
+    .stat {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 13px 14px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.11);
+      color: var(--muted);
+    }
+
+    .stat strong { color: white; }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    input, select {
+      width: 100%;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.095);
+      color: white;
+      border-radius: 18px;
+      padding: 14px 16px;
+      outline: none;
+      font-weight: 650;
+    }
+
+    input::placeholder { color: rgba(226,232,240,.6); }
+
+    select option {
+      color: #0f172a;
+    }
+
+    .card-shell {
+      overflow: hidden;
+    }
+
+    .card {
+      padding: clamp(22px, 4vw, 42px);
+      min-height: 560px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .topline {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 13px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.14);
+      color: var(--muted);
+      font-size: .9rem;
+      font-weight: 760;
+    }
+
+    .pill.hot {
+      color: #fde68a;
+      border-color: rgba(250,204,21,.32);
+      background: rgba(250,204,21,.11);
+    }
+
+    .stage {
+      text-align: center;
+      padding: 28px 16px 10px;
+    }
+
+    .hanzi {
+      font-family: "Songti SC", "Noto Serif CJK SC", "STSong", serif;
+      font-size: clamp(4.7rem, 16vw, 10rem);
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: -.05em;
+      text-shadow: 0 22px 54px rgba(0,0,0,.45);
+    }
+
+    .meaning-preview {
+      margin: 18px auto 0;
+      color: var(--soft);
+      max-width: 660px;
+      line-height: 1.55;
+    }
+
+    .hidden-prompt {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .reveal {
+      display: none;
+      animation: fade .24s ease;
+    }
+
+    .card.revealed .reveal {
+      display: grid;
+      gap: 16px;
+    }
+
+    .card.revealed .hidden-prompt {
+      display: none;
+    }
+
+    @keyframes fade {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .box {
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.13);
+      border-radius: 22px;
+      padding: 18px;
+    }
+
+    .box.full { grid-column: 1 / -1; }
+
+    .label {
+      color: var(--blue);
+      font-size: .78rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      margin-bottom: 8px;
+    }
+
+    .value {
+      line-height: 1.58;
+      color: #f8fafc;
+      font-size: 1.02rem;
+    }
+
+    .pinyin-big {
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: #fde68a;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      padding: 9px 11px;
+      border-radius: 999px;
+      background: rgba(15,23,42,.48);
+      border: 1px solid rgba(255,255,255,.13);
+      color: white;
+      font-weight: 800;
+    }
+
+    .chip span {
+      color: var(--muted);
+      font-weight: 650;
+      margin-left: 5px;
+    }
+
+    .examples {
+      display: grid;
+      gap: 10px;
+    }
+
+    .example {
+      padding: 13px 15px;
+      border-radius: 17px;
+      background: rgba(2,6,23,.35);
+      border: 1px solid rgba(255,255,255,.11);
+    }
+
+    .example .zh {
+      font-family: "Songti SC", "Noto Serif CJK SC", "STSong", serif;
+      font-weight: 900;
+      font-size: 1.22rem;
+    }
+
+    .example .py {
+      margin-top: 4px;
+      color: #fde68a;
+      font-size: .95rem;
+    }
+
+    .example .en {
+      margin-top: 3px;
+      color: var(--muted);
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      padding: 18px;
+      background: rgba(2,6,23,.42);
+      border-top: 1px solid rgba(255,255,255,.12);
+    }
+
+    button {
+      border: 0;
+      border-radius: 17px;
+      cursor: pointer;
+      padding: 14px 14px;
+      font-size: .96rem;
+      font-weight: 900;
+      color: #020617;
+      background: white;
+      transition: transform .16s ease, box-shadow .16s ease, opacity .16s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 30px rgba(0,0,0,.25);
+    }
+
+    button:active { transform: translateY(0); }
+
+    .primary { background: linear-gradient(135deg, #facc15, #f59e0b); }
+    .blue { background: linear-gradient(135deg, #38bdf8, #0284c7); }
+    .green { background: linear-gradient(135deg, #4ade80, #16a34a); }
+    .red { background: linear-gradient(135deg, #fb7185, #ef4444); color: white; }
+    .ghost {
+      background: rgba(255,255,255,.1);
+      color: white;
+      border: 1px solid rgba(255,255,255,.16);
+    }
+
+    .browser {
+      margin-top: 18px;
+      padding: 18px;
+    }
+
+    .browser h2 {
+      margin: 0 0 12px;
+      font-size: 1.15rem;
+    }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+      gap: 10px;
+      max-height: 230px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .mini-card {
+      border-radius: 17px;
+      padding: 12px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.12);
+      cursor: pointer;
+      transition: transform .15s ease, border-color .15s ease;
+    }
+
+    .mini-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(250,204,21,.42);
+    }
+
+    .mini-hanzi {
+      font-family: "Songti SC", "Noto Serif CJK SC", "STSong", serif;
+      font-size: 1.7rem;
+      font-weight: 900;
+    }
+
+    .mini-meaning {
+      color: var(--muted);
+      font-size: .82rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 20px;
+      transform: translateX(-50%) translateY(20px);
+      opacity: 0;
+      background: rgba(15,23,42,.92);
+      color: white;
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 999px;
+      padding: 12px 16px;
+      box-shadow: 0 18px 40px rgba(0,0,0,.3);
+      transition: opacity .2s ease, transform .2s ease;
+      pointer-events: none;
+      z-index: 99;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 820px) {
+      body { padding: 14px; }
+      .hero { grid-template-columns: 1fr; }
+      .toolbar { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .controls { grid-template-columns: 1fr 1fr; }
+      .controls button:first-child { grid-column: 1 / -1; }
+      .hanzi { font-size: clamp(4.2rem, 23vw, 7rem); }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="hero">
+      <div class="hero-main">
+        <h1>Character-first<br>Chinese Flashcards</h1>
+        <p class="subtitle">
+          Pinyin is hidden until you reveal the answer. Each card includes meaning,
+          common verb-object phrases, usage patterns, and example sentences.
+        </p>
+      </div>
+
+      <aside class="hero-side">
+        <div class="stat"><span>Deck</span><strong id="deckCount">0 cards</strong></div>
+        <div class="stat"><span>Known</span><strong id="knownCount">0</strong></div>
+        <div class="stat"><span>Needs review</span><strong id="reviewCount">0</strong></div>
+      </aside>
+    </section>
+
+    <section class="toolbar">
+      <input id="searchInput" placeholder="Search: 买, mǎi, buy, class, etc." />
+      <select id="categoryFilter">
+        <option value="all">All categories</option>
+      </select>
+      <select id="modeSelect">
+        <option value="hanzi">Prompt: Hanzi only</option>
+        <option value="english">Prompt: English meaning</option>
+        <option value="collocation">Prompt: Usage challenge</option>
+      </select>
+    </section>
+
+    <section class="card-shell">
+      <article class="card" id="card">
+        <div class="topline">
+          <span class="pill hot" id="counter">Card 1 / 1</span>
+          <span class="pill" id="categoryPill">Verb</span>
+        </div>
+
+        <div class="stage">
+          <div class="hanzi" id="promptText">买</div>
+          <div class="meaning-preview" id="promptHint">
+            Try to remember the pinyin, meaning, and how to use it.
+          </div>
+          <div class="hidden-prompt">
+            Pinyin is hidden. Say the answer out loud, then reveal.
+          </div>
+        </div>
+
+        <section class="reveal">
+          <div class="grid">
+            <div class="box">
+              <div class="label">Pinyin</div>
+              <div class="value pinyin-big" id="pinyin"></div>
+            </div>
+            <div class="box">
+              <div class="label">Meaning</div>
+              <div class="value" id="meaning"></div>
+            </div>
+            <div class="box full">
+              <div class="label">Common applications</div>
+              <div class="chips" id="collocations"></div>
+            </div>
+            <div class="box full">
+              <div class="label">How to use it</div>
+              <div class="value" id="usage"></div>
+            </div>
+            <div class="box full">
+              <div class="label">Examples</div>
+              <div class="examples" id="examples"></div>
+            </div>
+            <div class="box full">
+              <div class="label">Memory hint</div>
+              <div class="value" id="hint"></div>
+            </div>
+          </div>
+        </section>
+      </article>
+
+      <div class="controls">
+        <button class="primary" id="revealBtn">Reveal</button>
+        <button class="green" id="knownBtn">I knew it</button>
+        <button class="red" id="reviewBtn">Review again</button>
+        <button class="blue" id="nextBtn">Next</button>
+        <button class="ghost" id="shuffleBtn">Shuffle</button>
+      </div>
+    </section>
+
+    <section class="panel browser">
+      <h2>Deck browser</h2>
+      <div class="mini-grid" id="miniGrid"></div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const cards = [
+      {
+        hanzi: "上网",
+        pinyin: "shàng wǎng",
+        meaning: "to go online; to use the internet",
+        category: "Technology",
+        type: "Verb-object phrase",
+        collocations: [
+          ["上网", "go online"],
+          ["在网上", "online"],
+          ["网上买东西", "buy things online"]
+        ],
+        usage: "上 can mean to get onto or start doing an activity. 上网 literally means 'go onto the net'. Use it for browsing, going online, or using the internet.",
+        examples: [
+          ["我晚上常常上网。", "Wǒ wǎnshang chángcháng shàng wǎng.", "I often go online at night."],
+          ["你喜欢在网上买东西吗？", "Nǐ xǐhuan zài wǎngshàng mǎi dōngxi ma?", "Do you like buying things online?"]
+        ],
+        hint: "上 = go onto; 网 = net/web."
+      },
+      {
+        hanzi: "上课",
+        pinyin: "shàng kè",
+        meaning: "to attend class; to have class",
+        category: "School",
+        type: "Verb-object phrase",
+        collocations: [
+          ["上课", "have class"],
+          ["下课", "finish class"],
+          ["上中文课", "attend Chinese class"]
+        ],
+        usage: "上课 is used when a student attends class or when class is in session. 下课 is the opposite: class ends.",
+        examples: [
+          ["我们八点上课。", "Wǒmen bā diǎn shàng kè.", "We have class at eight."],
+          ["下课以后，我去吃饭。", "Xià kè yǐhòu, wǒ qù chī fàn.", "After class, I go eat."]
+        ],
+        hint: "Think of 上 as entering an activity: 上课 = enter class."
+      },
+      {
+        hanzi: "查",
+        pinyin: "chá",
+        meaning: "to look up; to check",
+        category: "Study",
+        type: "Verb",
+        collocations: [
+          ["查资料", "look up materials"],
+          ["查词典", "check a dictionary"],
+          ["查一下", "check briefly"]
+        ],
+        usage: "查 is used when you search for information, verify something, or look something up. It is often followed by the source or thing being checked.",
+        examples: [
+          ["我想查一下这个词。", "Wǒ xiǎng chá yíxià zhège cí.", "I want to look up this word."],
+          ["她在图书馆查资料。", "Tā zài túshūguǎn chá zīliào.", "She is looking up materials in the library."]
+        ],
+        hint: "查 feels like 'inspect/search/check'."
+      },
+      {
+        hanzi: "发",
+        pinyin: "fā",
+        meaning: "to send; to issue",
+        category: "Communication",
+        type: "Verb",
+        collocations: [
+          ["发微信", "send a WeChat message"],
+          ["发邮件", "send an email"],
+          ["发短信", "send a text"]
+        ],
+        usage: "发 is used for sending messages, emails, posts, documents, or announcements. It often has the idea of sending something outward.",
+        examples: [
+          ["我给你发微信。", "Wǒ gěi nǐ fā Wēixìn.", "I'll send you a WeChat message."],
+          ["老师发了一封邮件。", "Lǎoshī fā le yì fēng yóujiàn.", "The teacher sent an email."]
+        ],
+        hint: "发 sends something out."
+      },
+      {
+        hanzi: "收",
+        pinyin: "shōu",
+        meaning: "to receive; to collect",
+        category: "Communication",
+        type: "Verb",
+        collocations: [
+          ["收邮件", "receive email"],
+          ["收到", "receive"],
+          ["收作业", "collect homework"]
+        ],
+        usage: "收 is the opposite direction of 发. 发 sends out; 收 receives or gathers in.",
+        examples: [
+          ["你收到我的邮件了吗？", "Nǐ shōudào wǒ de yóujiàn le ma?", "Did you receive my email?"],
+          ["老师收学生的作业。", "Lǎoshī shōu xuésheng de zuòyè.", "The teacher collects the students' homework."]
+        ],
+        hint: "收 pulls something inward."
+      },
+      {
+        hanzi: "借",
+        pinyin: "jiè",
+        meaning: "to borrow; to lend",
+        category: "Daily life",
+        type: "Verb",
+        collocations: [
+          ["借书", "borrow a book"],
+          ["借词典", "borrow a dictionary"],
+          ["借给你", "lend to you"]
+        ],
+        usage: "借 can mean borrow or lend depending on the structure. 我借书 usually means I borrow a book. 我借给你 means I lend it to you.",
+        examples: [
+          ["我想借一本书。", "Wǒ xiǎng jiè yì běn shū.", "I want to borrow a book."],
+          ["你可以把词典借给我吗？", "Nǐ kěyǐ bǎ cídiǎn jiè gěi wǒ ma?", "Can you lend me the dictionary?"]
+        ],
+        hint: "Look for 给 to know the direction: 借给 = lend to."
+      },
+      {
+        hanzi: "看",
+        pinyin: "kàn",
+        meaning: "to look at; to watch; to read",
+        category: "Media",
+        type: "Verb",
+        collocations: [
+          ["看电影", "watch a movie"],
+          ["看电视剧", "watch a TV drama"],
+          ["看京剧", "watch Peking opera"]
+        ],
+        usage: "看 changes meaning depending on the object. 看书 = read a book; 看电影 = watch a movie; 看人 = look at a person.",
+        examples: [
+          ["我们周末看电影。", "Wǒmen zhōumò kàn diànyǐng.", "We watch a movie on the weekend."],
+          ["她喜欢看电视剧。", "Tā xǐhuan kàn diànshìjù.", "She likes watching TV dramas."]
+        ],
+        hint: "看 = use your eyes."
+      },
+      {
+        hanzi: "听",
+        pinyin: "tīng",
+        meaning: "to listen",
+        category: "Media",
+        type: "Verb",
+        collocations: [
+          ["听音乐", "listen to music"],
+          ["听录音", "listen to a recording"],
+          ["听老师说", "listen to the teacher speak"]
+        ],
+        usage: "听 is used for sounds, music, recordings, speech, and listening comprehension.",
+        examples: [
+          ["我一边走路一边听音乐。", "Wǒ yìbiān zǒulù yìbiān tīng yīnyuè.", "I listen to music while walking."],
+          ["请再听一遍录音。", "Qǐng zài tīng yí biàn lùyīn.", "Please listen to the recording one more time."]
+        ],
+        hint: "听 = use your ears."
+      },
+      {
+        hanzi: "复习",
+        pinyin: "fùxí",
+        meaning: "to review",
+        category: "Study",
+        type: "Verb",
+        collocations: [
+          ["复习课文", "review the text"],
+          ["复习生词", "review vocabulary"],
+          ["复习汉字", "review characters"],
+          ["复习语法", "review grammar"]
+        ],
+        usage: "复习 means to review material you have already learned. It is usually used before exams or before class.",
+        examples: [
+          ["我今天晚上要复习生词。", "Wǒ jīntiān wǎnshang yào fùxí shēngcí.", "Tonight I need to review vocabulary."],
+          ["考试以前，我们复习语法。", "Kǎoshì yǐqián, wǒmen fùxí yǔfǎ.", "Before the test, we review grammar."]
+        ],
+        hint: "复 has the feeling of repeating/again."
+      },
+      {
+        hanzi: "预习",
+        pinyin: "yùxí",
+        meaning: "to preview; to prepare before class",
+        category: "Study",
+        type: "Verb",
+        collocations: [
+          ["预习课文", "preview the text"],
+          ["预习生词", "preview new words"]
+        ],
+        usage: "预习 means studying material before it is taught. It is the opposite study direction from 复习, which reviews after learning.",
+        examples: [
+          ["上课以前，我预习课文。", "Shàng kè yǐqián, wǒ yùxí kèwén.", "Before class, I preview the text."],
+          ["请大家预习这些生词。", "Qǐng dàjiā yùxí zhèxiē shēngcí.", "Please preview these new words."]
+        ],
+        hint: "预 means beforehand."
+      },
+      {
+        hanzi: "坐",
+        pinyin: "zuò",
+        meaning: "to sit; to take transportation",
+        category: "Transportation",
+        type: "Verb",
+        collocations: [
+          ["坐飞机", "take a plane"],
+          ["坐火车", "take a train"],
+          ["坐公共汽车", "take a bus"]
+        ],
+        usage: "坐 literally means to sit, but with transportation it means to take or ride in a vehicle where you sit as a passenger.",
+        examples: [
+          ["我坐飞机去韩国。", "Wǒ zuò fēijī qù Hánguó.", "I take a plane to Korea."],
+          ["他们坐火车去北京。", "Tāmen zuò huǒchē qù Běijīng.", "They take the train to Beijing."]
+        ],
+        hint: "If you sit inside it as a passenger, often use 坐."
+      },
+      {
+        hanzi: "骑",
+        pinyin: "qí",
+        meaning: "to ride by straddling",
+        category: "Transportation",
+        type: "Verb",
+        collocations: [
+          ["骑车", "ride a bike"],
+          ["骑自行车", "ride a bicycle"],
+          ["骑马", "ride a horse"]
+        ],
+        usage: "骑 is used for things you ride by sitting on top and straddling them, such as bicycles, motorcycles, horses.",
+        examples: [
+          ["我每天骑自行车去学校。", "Wǒ měitiān qí zìxíngchē qù xuéxiào.", "I ride a bicycle to school every day."],
+          ["你会骑车吗？", "Nǐ huì qí chē ma?", "Can you ride a bike?"]
+        ],
+        hint: "骑 = ride on top, not sit inside."
+      },
+      {
+        hanzi: "做",
+        pinyin: "zuò",
+        meaning: "to do; to make",
+        category: "Study",
+        type: "Verb",
+        collocations: [
+          ["做练习", "do exercises"],
+          ["做作业", "do homework"],
+          ["做饭", "cook; make food"]
+        ],
+        usage: "做 is a general verb for doing or making. With schoolwork, use 做练习 or 做作业.",
+        examples: [
+          ["我晚上做练习。", "Wǒ wǎnshang zuò liànxí.", "I do exercises at night."],
+          ["你做完作业了吗？", "Nǐ zuòwán zuòyè le ma?", "Have you finished your homework?"]
+        ],
+        hint: "做 is the general 'do/make' verb."
+      },
+      {
+        hanzi: "练习",
+        pinyin: "liànxí",
+        meaning: "to practice; exercise",
+        category: "Study",
+        type: "Verb / Noun",
+        collocations: [
+          ["练习口语", "practice speaking"],
+          ["做练习", "do exercises"],
+          ["练习汉字", "practice characters"]
+        ],
+        usage: "练习 can be a verb or a noun. 练习口语 means practice spoken Chinese. 做练习 means do exercises.",
+        examples: [
+          ["我想练习口语。", "Wǒ xiǎng liànxí kǒuyǔ.", "I want to practice speaking."],
+          ["这些练习不难。", "Zhèxiē liànxí bù nán.", "These exercises are not difficult."]
+        ],
+        hint: "As a verb: 练习 + skill. As a noun: 做练习."
+      },
+      {
+        hanzi: "教",
+        pinyin: "jiāo",
+        meaning: "to teach",
+        category: "School",
+        type: "Verb",
+        collocations: [
+          ["教综合课", "teach comprehensive class"],
+          ["教听力课", "teach listening class"],
+          ["教文化课", "teach culture class"],
+          ["教口语课", "teach speaking class"],
+          ["教阅读课", "teach reading class"],
+          ["教体育课", "teach PE class"]
+        ],
+        usage: "教 is used for teaching a class, subject, skill, or person. Pattern: A 教 B, or A 教 B + subject.",
+        examples: [
+          ["王老师教口语课。", "Wáng lǎoshī jiāo kǒuyǔ kè.", "Teacher Wang teaches speaking class."],
+          ["她教我们汉语。", "Tā jiāo wǒmen Hànyǔ.", "She teaches us Chinese."]
+        ],
+        hint: "教 = teacher action."
+      },
+      {
+        hanzi: "当",
+        pinyin: "dāng",
+        meaning: "to work as; to serve as",
+        category: "Work",
+        type: "Verb",
+        collocations: [
+          ["当翻译", "work as a translator"],
+          ["当老师", "work as a teacher"],
+          ["当医生", "work as a doctor"]
+        ],
+        usage: "当 is used for roles, jobs, or identities someone serves as. Pattern: 当 + role.",
+        examples: [
+          ["她想当翻译。", "Tā xiǎng dāng fānyì.", "She wants to work as a translator."],
+          ["我哥哥在大学当老师。", "Wǒ gēge zài dàxué dāng lǎoshī.", "My older brother works as a teacher at a university."]
+        ],
+        hint: "当 + role = be/work as that role."
+      },
+      {
+        hanzi: "浇",
+        pinyin: "jiāo",
+        meaning: "to water; to pour on",
+        category: "Daily life",
+        type: "Verb",
+        collocations: [
+          ["浇花", "water flowers"],
+          ["浇水", "water; pour water"],
+          ["给花浇水", "water the flowers"]
+        ],
+        usage: "浇 means to pour liquid onto something. The common classroom phrase is 浇花, to water flowers.",
+        examples: [
+          ["我每天早上浇花。", "Wǒ měitiān zǎoshang jiāo huā.", "I water the flowers every morning."],
+          ["请给这些花浇水。", "Qǐng gěi zhèxiē huā jiāo shuǐ.", "Please water these flowers."]
+        ],
+        hint: "The water radical 氵 reminds you it involves liquid."
+      },
+      {
+        hanzi: "准备",
+        pinyin: "zhǔnbèi",
+        meaning: "to prepare",
+        category: "Daily life",
+        type: "Verb",
+        collocations: [
+          ["准备早饭", "prepare breakfast"],
+          ["准备午饭", "prepare lunch"],
+          ["准备晚饭", "prepare dinner"],
+          ["准备考试", "prepare for an exam"]
+        ],
+        usage: "准备 can mean to prepare something or to get ready to do something. Pattern: 准备 + noun, or 准备 + verb.",
+        examples: [
+          ["妈妈在准备晚饭。", "Māma zài zhǔnbèi wǎnfàn.", "Mom is preparing dinner."],
+          ["我准备明天去北京。", "Wǒ zhǔnbèi míngtiān qù Běijīng.", "I plan to go to Beijing tomorrow."]
+        ],
+        hint: "准备 can mean both prepare and plan to."
+      },
+      {
+        hanzi: "买",
+        pinyin: "mǎi",
+        meaning: "to buy",
+        category: "Shopping",
+        type: "Verb",
+        collocations: [
+          ["买羽绒服", "buy a down jacket"],
+          ["买东西", "buy things"],
+          ["买书", "buy books"]
+        ],
+        usage: "买 is a transitive verb, usually followed by the thing bought. Do not confuse it with 卖 mài, to sell.",
+        examples: [
+          ["我想买一件羽绒服。", "Wǒ xiǎng mǎi yí jiàn yǔróngfú.", "I want to buy a down jacket."],
+          ["你在哪里买东西？", "Nǐ zài nǎlǐ mǎi dōngxi?", "Where do you buy things?"]
+        ],
+        hint: "买 mǎi = buy. 卖 mài = sell."
+      },
+      {
+        hanzi: "爬",
+        pinyin: "pá",
+        meaning: "to climb; to crawl",
+        category: "Activity",
+        type: "Verb",
+        collocations: [
+          ["爬山", "climb a mountain; hike"],
+          ["爬楼梯", "climb stairs"],
+          ["爬上去", "climb up"]
+        ],
+        usage: "爬 is used for climbing using effort, such as mountains or stairs. 爬山 often means hiking.",
+        examples: [
+          ["周末我们去爬山。", "Zhōumò wǒmen qù pá shān.", "This weekend we go hiking."],
+          ["小孩子在地上爬。", "Xiǎo háizi zài dìshang pá.", "The child is crawling on the ground."]
+        ],
+        hint: "爬 has a physical climbing/crawling feeling."
+      },
+      {
+        hanzi: "举行",
+        pinyin: "jǔxíng",
+        meaning: "to hold; to host an event",
+        category: "Events",
+        type: "Verb",
+        collocations: [
+          ["举行晚会", "hold a party"],
+          ["举行生日晚会", "hold a birthday party"],
+          ["举行会议", "hold a meeting"]
+        ],
+        usage: "举行 is formal and is used for organizing or holding events, meetings, ceremonies, parties, and activities.",
+        examples: [
+          ["他们明天举行生日晚会。", "Tāmen míngtiān jǔxíng shēngrì wǎnhuì.", "They are holding a birthday party tomorrow."],
+          ["学校举行了一个活动。", "Xuéxiào jǔxíng le yí ge huódòng.", "The school held an event."]
+        ],
+        hint: "举行 = an event is officially held."
+      },
+      {
+        hanzi: "参加",
+        pinyin: "cānjiā",
+        meaning: "to participate in; to attend",
+        category: "Events",
+        type: "Verb",
+        collocations: [
+          ["参加晚会", "attend a party"],
+          ["参加生日晚会", "attend a birthday party"],
+          ["参加比赛", "participate in a competition"]
+        ],
+        usage: "参加 means joining or attending an event, activity, class, club, or competition as a participant.",
+        examples: [
+          ["你参加他的生日晚会吗？", "Nǐ cānjiā tā de shēngrì wǎnhuì ma?", "Are you attending his birthday party?"],
+          ["我想参加中文俱乐部。", "Wǒ xiǎng cānjiā Zhōngwén jùlèbù.", "I want to join the Chinese club."]
+        ],
+        hint: "参加 = join into an activity."
+      },
+      {
+        hanzi: "参观",
+        pinyin: "cānguān",
+        meaning: "to visit; to tour",
+        category: "Travel",
+        type: "Verb",
+        collocations: [
+          ["参观博物馆", "visit a museum"],
+          ["参观公司", "tour a company"],
+          ["参观学校", "visit a school"]
+        ],
+        usage: "参观 is used for visiting a place in an organized or observational way, such as museums, companies, schools, and factories.",
+        examples: [
+          ["我们下午参观博物馆。", "Wǒmen xiàwǔ cānguān bówùguǎn.", "We visit the museum in the afternoon."],
+          ["他们来参观我们公司。", "Tāmen lái cānguān wǒmen gōngsī.", "They came to tour our company."]
+        ],
+        hint: "参观 is more like tour/visit than casually go to."
+      },
+      {
+        hanzi: "锻炼",
+        pinyin: "duànliàn",
+        meaning: "to exercise; to work out",
+        category: "Health",
+        type: "Verb",
+        collocations: [
+          ["锻炼身体", "exercise the body"],
+          ["每天锻炼", "exercise every day"],
+          ["去健身房锻炼", "go work out at the gym"]
+        ],
+        usage: "锻炼 means physical exercise or training. The common phrase 锻炼身体 literally means to exercise the body.",
+        examples: [
+          ["我每天早上锻炼身体。", "Wǒ měitiān zǎoshang duànliàn shēntǐ.", "I exercise every morning."],
+          ["多锻炼对身体好。", "Duō duànliàn duì shēntǐ hǎo.", "Exercising more is good for the body."]
+        ],
+        hint: "锻炼 is stronger than just moving; it implies training/exercise."
+      },
+      {
+        hanzi: "带",
+        pinyin: "dài",
+        meaning: "to bring; to carry; to take along",
+        category: "Daily life",
+        type: "Verb",
+        collocations: [
+          ["带午饭", "bring lunch"],
+          ["带书", "bring a book"],
+          ["带朋友来", "bring a friend"]
+        ],
+        usage: "带 means to bring or carry something/someone with you. The object is what you bring.",
+        examples: [
+          ["你带书了吗？", "Nǐ dài shū le ma?", "Did you bring the book?"],
+          ["我今天带午饭。", "Wǒ jīntiān dài wǔfàn.", "I brought lunch today."]
+        ],
+        hint: "带 = take along with you."
+      },
+      {
+        hanzi: "玩",
+        pinyin: "wán",
+        meaning: "to play; to have fun",
+        category: "Entertainment",
+        type: "Verb",
+        collocations: [
+          ["玩电脑", "use/play on the computer"],
+          ["玩游戏", "play games"],
+          ["出去玩", "go out for fun"]
+        ],
+        usage: "玩 is used for games, toys, computers, phones, and going out for fun. 玩电脑 can mean playing around on or using the computer.",
+        examples: [
+          ["他喜欢玩游戏。", "Tā xǐhuan wán yóuxì.", "He likes playing games."],
+          ["周末我们出去玩。", "Zhōumò wǒmen chūqù wán.", "We go out for fun on the weekend."]
+        ],
+        hint: "玩 is the fun/play verb."
+      },
+      {
+        hanzi: "唱",
+        pinyin: "chàng",
+        meaning: "to sing",
+        category: "Arts",
+        type: "Verb",
+        collocations: [
+          ["唱歌", "sing songs"],
+          ["唱京剧", "sing Peking opera"],
+          ["唱中文歌", "sing Chinese songs"]
+        ],
+        usage: "唱 is followed by what is sung. 唱歌 is the most common phrase and means to sing.",
+        examples: [
+          ["她唱歌唱得很好。", "Tā chàng gē chàng de hěn hǎo.", "She sings very well."],
+          ["爷爷喜欢唱京剧。", "Yéye xǐhuan chàng jīngjù.", "Grandpa likes singing Peking opera."]
+        ],
+        hint: "唱 = voice + music."
+      },
+      {
+        hanzi: "学",
+        pinyin: "xué",
+        meaning: "to study; to learn",
+        category: "Study",
+        type: "Verb",
+        collocations: [
+          ["学书法", "study calligraphy"],
+          ["学汉语", "study Chinese"],
+          ["学中文", "study Chinese"]
+        ],
+        usage: "学 is used for learning subjects, languages, arts, and skills. 学习 is a fuller word meaning study/learn.",
+        examples: [
+          ["我在学汉语。", "Wǒ zài xué Hànyǔ.", "I am studying Chinese."],
+          ["你想学书法吗？", "Nǐ xiǎng xué shūfǎ ma?", "Do you want to learn calligraphy?"]
+        ],
+        hint: "学 is the core character in 学校, school."
+      },
+      {
+        hanzi: "画",
+        pinyin: "huà",
+        meaning: "to draw; painting/picture",
+        category: "Arts",
+        type: "Verb / Noun",
+        collocations: [
+          ["画画儿", "draw pictures"],
+          ["画一张画", "draw a picture"],
+          ["中国画", "Chinese painting"]
+        ],
+        usage: "画 can be a verb meaning to draw/paint or a noun meaning picture/painting. 画画儿 is the common activity phrase.",
+        examples: [
+          ["妹妹喜欢画画儿。", "Mèimei xǐhuan huà huàr.", "My younger sister likes drawing."],
+          ["他画了一张很漂亮的画。", "Tā huà le yì zhāng hěn piàoliang de huà.", "He drew a very beautiful picture."]
+        ],
+        hint: "Same character can be verb and noun: draw / picture."
+      }
+    ];
+
+    let order = cards.map((_, i) => i);
+    let position = 0;
+    let revealed = false;
+    const progress = JSON.parse(localStorage.getItem("zh_flash_progress_v2") || "{}");
+
+    const el = id => document.getElementById(id);
+    const cardEl = el("card");
+    const promptText = el("promptText");
+    const promptHint = el("promptHint");
+    const pinyinEl = el("pinyin");
+    const meaningEl = el("meaning");
+    const collocationsEl = el("collocations");
+    const usageEl = el("usage");
+    const examplesEl = el("examples");
+    const hintEl = el("hint");
+    const counterEl = el("counter");
+    const categoryPill = el("categoryPill");
+    const deckCount = el("deckCount");
+    const knownCount = el("knownCount");
+    const reviewCount = el("reviewCount");
+    const searchInput = el("searchInput");
+    const categoryFilter = el("categoryFilter");
+    const modeSelect = el("modeSelect");
+    const miniGrid = el("miniGrid");
+    const toast = el("toast");
+
+    function currentCard() {
+      return cards[order[position]];
+    }
+
+    function saveProgress() {
+      localStorage.setItem("zh_flash_progress_v2", JSON.stringify(progress));
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 1200);
+    }
+
+    function updateStats() {
+      const known = Object.values(progress).filter(x => x === "known").length;
+      const review = Object.values(progress).filter(x => x === "review").length;
+      deckCount.textContent = `${cards.length} cards`;
+      knownCount.textContent = known;
+      reviewCount.textContent = review;
+      counterEl.textContent = `Card ${position + 1} / ${order.length}`;
+    }
+
+    function renderCard() {
+      if (!order.length) {
+        promptText.textContent = "无";
+        promptHint.textContent = "No cards match your filters.";
+        cardEl.classList.remove("revealed");
+        return;
+      }
+
+      const c = currentCard();
+      const mode = modeSelect.value;
+      revealed = false;
+      cardEl.classList.remove("revealed");
+
+      if (mode === "english") {
+        promptText.textContent = c.meaning;
+        promptHint.textContent = "Recall the Chinese word/phrase and its pinyin.";
+      } else if (mode === "collocation") {
+        const choice = c.collocations[0];
+        promptText.textContent = choice[1];
+        promptHint.textContent = "Say the Chinese collocation that matches this usage.";
+      } else {
+        promptText.textContent = c.hanzi;
+        promptHint.textContent = "Try to remember the pinyin, meaning, and applications.";
+      }
+
+      categoryPill.textContent = `${c.category} · ${c.type}`;
+      pinyinEl.textContent = c.pinyin;
+      meaningEl.textContent = c.meaning;
+      usageEl.textContent = c.usage;
+      hintEl.textContent = c.hint;
+
+      collocationsEl.innerHTML = "";
+      c.collocations.forEach(([zh, en]) => {
+        const chip = document.createElement("div");
+        chip.className = "chip";
+        chip.innerHTML = `${zh}<span>${en}</span>`;
+        collocationsEl.appendChild(chip);
+      });
+
+      examplesEl.innerHTML = "";
+      c.examples.forEach(([zh, py, en]) => {
+        const div = document.createElement("div");
+        div.className = "example";
+        div.innerHTML = `<div class="zh">${zh}</div><div class="py">${py}</div><div class="en">${en}</div>`;
+        examplesEl.appendChild(div);
+      });
+
+      updateStats();
+    }
+
+    function reveal() {
+      revealed = true;
+      cardEl.classList.add("revealed");
+    }
+
+    function next() {
+      if (!order.length) return;
+      position = (position + 1) % order.length;
+      renderCard();
+    }
+
+    function mark(status) {
+      if (!order.length) return;
+      const c = currentCard();
+      progress[c.hanzi] = status;
+      saveProgress();
+
+      if (status === "review") {
+        const hardIndex = order[position];
+        order.splice(position, 1);
+        const insertAt = Math.min(position + 4, order.length);
+        order.splice(insertAt, 0, hardIndex);
+        showToast("Added back soon for review");
+        if (position >= order.length) position = 0;
+        renderCard();
+      } else {
+        showToast("Nice — marked known");
+        next();
+      }
+    }
+
+    function shuffle() {
+      for (let i = order.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [order[i], order[j]] = [order[j], order[i]];
+      }
+      position = 0;
+      renderCard();
+      renderBrowser();
+      showToast("Deck shuffled");
+    }
+
+    function normalize(str) {
+      return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    }
+
+    function applyFilters() {
+      const q = normalize(searchInput.value.trim());
+      const cat = categoryFilter.value;
+
+      order = cards
+        .map((c, i) => ({ c, i }))
+        .filter(({ c }) => {
+          const searchable = normalize([
+            c.hanzi,
+            c.pinyin,
+            c.meaning,
+            c.category,
+            c.type,
+            c.usage,
+            ...c.collocations.flat(),
+            ...c.examples.flat()
+          ].join(" "));
+          const matchesQuery = !q || searchable.includes(q);
+          const matchesCat = cat === "all" || c.category === cat;
+          return matchesQuery && matchesCat;
+        })
+        .map(x => x.i);
+
+      position = 0;
+      renderCard();
+      renderBrowser();
+    }
+
+    function setupCategories() {
+      const cats = [...new Set(cards.map(c => c.category))].sort();
+      cats.forEach(cat => {
+        const option = document.createElement("option");
+        option.value = cat;
+        option.textContent = cat;
+        categoryFilter.appendChild(option);
+      });
+    }
+
+    function renderBrowser() {
+      miniGrid.innerHTML = "";
+      order.forEach((cardIndex, visibleIndex) => {
+        const c = cards[cardIndex];
+        const div = document.createElement("div");
+        div.className = "mini-card";
+        div.innerHTML = `<div class="mini-hanzi">${c.hanzi}</div><div class="mini-meaning">${c.meaning}</div>`;
+        div.addEventListener("click", () => {
+          position = visibleIndex;
+          renderCard();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+        miniGrid.appendChild(div);
+      });
+    }
+
+    el("revealBtn").addEventListener("click", reveal);
+    el("nextBtn").addEventListener("click", next);
+    el("knownBtn").addEventListener("click", () => mark("known"));
+    el("reviewBtn").addEventListener("click", () => mark("review"));
+    el("shuffleBtn").addEventListener("click", shuffle);
+
+    searchInput.addEventListener("input", applyFilters);
+    categoryFilter.addEventListener("change", applyFilters);
+    modeSelect.addEventListener("change", renderCard);
+
+    document.addEventListener("keydown", e => {
+      if (e.key === " ") {
+        e.preventDefault();
+        revealed ? next() : reveal();
+      }
+      if (e.key === "ArrowRight") next();
+      if (e.key.toLowerCase() === "k") mark("known");
+      if (e.key.toLowerCase() === "r") mark("review");
+      if (e.key.toLowerCase() === "s") shuffle();
+    });
+
+    setupCategories();
+    renderCard();
+    renderBrowser();
+  </script>
+</body>
+</html>
