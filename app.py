@@ -3768,6 +3768,7 @@ CARDS.extend(IMPORTED_CARDS)
 
 
 # Fast, precomputed search/category helpers.
+# Keep search lightweight so every button click reruns quickly.
 SEARCH_TEXT = [
     " ".join(
         [
@@ -3776,9 +3777,6 @@ SEARCH_TEXT = [
             card["english"],
             card["category"],
             card["part"],
-            card["usage"],
-            " ".join(card["examples"]),
-            card["hint"],
         ]
     ).lower()
     for card in CARDS
@@ -3791,8 +3789,6 @@ CATEGORIES = ["All"] + sorted({card["category"] for card in CARDS})
 st.markdown(
     """
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@500;700;900&family=Inter:wght@500;700;900&display=swap');
-
     :root {
         --bg-a:#061525;
         --bg-b:#15182f;
@@ -3829,7 +3825,7 @@ st.markdown(
         border-radius:30px;
         padding:24px 28px;
         background:linear-gradient(135deg, rgba(255,255,255,.105), rgba(255,255,255,.045));
-        box-shadow:0 22px 70px rgba(0,0,0,.25);
+        box-shadow:0 10px 28px rgba(0,0,0,.18);
         margin-bottom:18px;
     }
     .title {
@@ -3872,7 +3868,7 @@ st.markdown(
             radial-gradient(circle at 18% 10%, rgba(45,212,191,.20), transparent 36%),
             radial-gradient(circle at 85% 88%, rgba(253,224,71,.12), transparent 30%),
             linear-gradient(135deg, rgba(255,255,255,.12), rgba(255,255,255,.055));
-        box-shadow:0 26px 80px rgba(0,0,0,.30);
+        box-shadow:0 14px 36px rgba(0,0,0,.22);
         padding:32px;
         display:flex;
         flex-direction:column;
@@ -3947,7 +3943,7 @@ st.markdown(
         background:rgba(255,255,255,.075);
         padding:20px;
         margin-bottom:14px;
-        box-shadow:0 18px 42px rgba(0,0,0,.14);
+        box-shadow:0 8px 22px rgba(0,0,0,.12);
     }
     .box-title {
         color:var(--yellow);
@@ -4360,16 +4356,8 @@ with right:
                 <div class="meaning">{e(card["category"])} · {e(card["part"])}</div>
             </div>
             <div class="answer-box">
-                <div class="box-title">How to use it</div>
-                <div class="muted">{e(card["usage"])}</div>
-            </div>
-            <div class="answer-box">
                 <div class="box-title">Examples</div>
                 {examples_html}
-            </div>
-            <div class="answer-box">
-                <div class="box-title">Memory hint</div>
-                <div class="muted">{e(card["hint"])}</div>
             </div>
             """,
             unsafe_allow_html=True,
@@ -4380,8 +4368,7 @@ with right:
             <div class="answer-box">
                 <div class="box-title">Hidden answer</div>
                 <div class="muted">
-                    Pinyin, meaning, category, grammar notes, examples, and hints are hidden
-                    until you press Reveal.
+                    Pinyin, meaning, category, and examples are hidden until you press Reveal.
                 </div>
             </div>
             """,
@@ -4389,36 +4376,40 @@ with right:
         )
 
 # ============================================================
-# Deck browser — collapsed by default for speed
+# Deck browser — optional, because rendering hundreds of cards is slow
 # ============================================================
 st.write("")
 with st.expander("Deck browser", expanded=False):
-    include_known = st.checkbox("Show known cards too", value=False)
-    cards_to_show = browser_indices(category, search, include_known)
-    st.caption(
-        f"Showing {len(cards_to_show)} matching card(s). The browser stays collapsed by default to keep the app faster."
-    )
+    load_browser = st.checkbox("Load deck browser", value=False)
+    st.caption("Leave this off while studying for faster button clicks. Turn it on only when you want to browse/search the full deck.")
 
-    if cards_to_show:
-        cols = st.columns(3)
-        for n, card_i in enumerate(cards_to_show):
-            deck_card = CARDS[card_i]
-            if card_i in st.session_state.known:
-                icon = "✅"
-            elif card_i in st.session_state.again:
-                icon = "🔁"
-            else:
-                icon = "•"
-            with cols[n % 3]:
-                st.markdown(
-                    f"""
-                    <div class="deck-card">
-                        <div class="deck-hanzi">{icon} {e(deck_card["hanzi"])}</div>
-                        <div class="deck-meta">{e(deck_card["pinyin"])} · {e(deck_card["english"])}</div>
-                        <div class="deck-meta">{e(deck_card["category"])} · {e(deck_card["part"])}</div>
-                    </div>
-                    """,
-                    unsafe_allow_html=True,
-                )
+    if load_browser:
+        include_known = st.checkbox("Show known cards too", value=False)
+        cards_to_show = browser_indices(category, search, include_known)
+        max_to_show = st.slider("Maximum browser cards to render", 20, 300, 60, 20)
+        visible_cards = cards_to_show[:max_to_show]
+        st.caption(f"Showing {len(visible_cards)} of {len(cards_to_show)} matching card(s).")
+
+        if visible_cards:
+            cols = st.columns(3)
+            for n, card_i in enumerate(visible_cards):
+                deck_card = CARDS[card_i]
+                if card_i in st.session_state.known:
+                    icon = "✅"
+                elif card_i in st.session_state.again:
+                    icon = "🔁"
+                else:
+                    icon = "•"
+                with cols[n % 3]:
+                    st.markdown(
+                        f"""
+                        <div class="deck-card">
+                            <div class="deck-hanzi">{icon} {e(deck_card["hanzi"])}</div>
+                            <div class="deck-meta">{e(deck_card["pinyin"])} · {e(deck_card["english"])}</div>
+                            <div class="deck-meta">{e(deck_card["category"])} · {e(deck_card["part"])}</div>
+                        </div>
+                        """,
+                        unsafe_allow_html=True,
+                    )
 
 st.caption("Tip: ✅ cards disappear from practice immediately. They only return after Reset progress.")
