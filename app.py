@@ -1,5 +1,8 @@
 import html
+import json
 import random
+from pathlib import Path
+
 import streamlit as st
 
 # ============================================================
@@ -3783,6 +3786,33 @@ SEARCH_TEXT = [
 ]
 CATEGORIES = ["All"] + sorted({card["category"] for card in CARDS})
 
+PRACTICE_MODES = ["Hanzi → meaning", "English → Hanzi", "Usage → Hanzi"]
+PROGRESS_FILE = Path("flashcard_progress.json")
+
+
+def valid_index(value: object) -> bool:
+    """Return True when value is a current card index."""
+    return isinstance(value, int) and 0 <= value < len(CARDS)
+
+
+def load_progress() -> dict:
+    """Load saved progress from disk, or return an empty dict."""
+    if not PROGRESS_FILE.exists():
+        return {}
+
+    try:
+        data = json.loads(PROGRESS_FILE.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+
+    if not isinstance(data, dict):
+        return {}
+
+    return data
+
+
+SAVED_PROGRESS = load_progress()
+
 # ============================================================
 # CSS — no iframe/components, only native Streamlit + CSS
 # ============================================================
@@ -4046,24 +4076,59 @@ st.markdown(
 )
 
 # ============================================================
-# Session state
+# Session state + persistent saved progress
 # ============================================================
+saved_known = [i for i in SAVED_PROGRESS.get("known", []) if valid_index(i)]
+saved_again = [i for i in SAVED_PROGRESS.get("again", []) if valid_index(i)]
+saved_order = [i for i in SAVED_PROGRESS.get("order", []) if valid_index(i)]
+saved_filter_key = SAVED_PROGRESS.get("filter_key")
+
+if isinstance(saved_filter_key, list):
+    saved_filter_key = tuple(saved_filter_key)
+elif not isinstance(saved_filter_key, tuple):
+    saved_filter_key = None
+
 if "known" not in st.session_state:
-    st.session_state.known = set()
+    st.session_state.known = set(saved_known)
 if "again" not in st.session_state:
-    st.session_state.again = set()
+    st.session_state.again = set(saved_again)
 if "revealed" not in st.session_state:
-    st.session_state.revealed = False
+    st.session_state.revealed = bool(SAVED_PROGRESS.get("revealed", False))
 if "order" not in st.session_state:
-    st.session_state.order = list(range(len(CARDS)))
+    st.session_state.order = saved_order or list(range(len(CARDS)))
 if "pos" not in st.session_state:
-    st.session_state.pos = 0
+    saved_pos = SAVED_PROGRESS.get("pos", 0)
+    st.session_state.pos = saved_pos if isinstance(saved_pos, int) else 0
 if "filter_key" not in st.session_state:
-    st.session_state.filter_key = None
+    st.session_state.filter_key = saved_filter_key
+
+saved_mode = SAVED_PROGRESS.get("practice_mode", PRACTICE_MODES[0])
+if saved_mode not in PRACTICE_MODES:
+    saved_mode = PRACTICE_MODES[0]
+
+saved_category = SAVED_PROGRESS.get("category_filter", "All")
+if saved_category not in CATEGORIES:
+    saved_category = "All"
+
+saved_search = SAVED_PROGRESS.get("search_filter", "")
+if not isinstance(saved_search, str):
+    saved_search = ""
+
+if "practice_mode" not in st.session_state:
+    st.session_state.practice_mode = saved_mode
+if "category_filter" not in st.session_state:
+    st.session_state.category_filter = saved_category
+if "search_filter" not in st.session_state:
+    st.session_state.search_filter = saved_search
 
 # In case Streamlit ever serializes sets differently.
-st.session_state.known = set(st.session_state.known)
-st.session_state.again = set(st.session_state.again)
+st.session_state.known = {i for i in st.session_state.known if valid_index(i)}
+st.session_state.again = {i for i in st.session_state.again if valid_index(i)}
+st.session_state.order = [i for i in st.session_state.order if valid_index(i)]
+if st.session_state.order:
+    st.session_state.pos %= len(st.session_state.order)
+else:
+    st.session_state.pos = 0
 
 # ============================================================
 # Helpers
@@ -4071,6 +4136,27 @@ st.session_state.again = set(st.session_state.again)
 def e(value: object) -> str:
     """Escape text before placing it in custom HTML."""
     return html.escape(str(value), quote=True)
+
+
+def save_progress() -> None:
+    """Save current study position/progress so the app resumes where you left off."""
+    data = {
+        "known": sorted(i for i in st.session_state.known if valid_index(i)),
+        "again": sorted(i for i in st.session_state.again if valid_index(i)),
+        "order": [i for i in st.session_state.order if valid_index(i)],
+        "pos": int(st.session_state.pos),
+        "revealed": bool(st.session_state.revealed),
+        "filter_key": list(st.session_state.filter_key) if st.session_state.filter_key else None,
+        "practice_mode": st.session_state.get("practice_mode", PRACTICE_MODES[0]),
+        "category_filter": st.session_state.get("category_filter", "All"),
+        "search_filter": st.session_state.get("search_filter", ""),
+    }
+
+    try:
+        PROGRESS_FILE.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    except OSError:
+        # Keep the app usable even if the folder is read-only.
+        pass
 
 
 def matches_filter(i: int, category: str, search: str) -> bool:
@@ -4261,18 +4347,20 @@ st.write("")
 # ============================================================
 f1, f2, f3 = st.columns([1.1, 1.1, 1.8])
 with f1:
-    mode = st.selectbox("Practice mode", ["Hanzi → meaning", "English → Hanzi", "Usage → Hanzi"])
+    mode = st.selectbox("Practice mode", PRACTICE_MODES, key="practice_mode")
 with f2:
-    category = st.selectbox("Category", CATEGORIES)
+    category = st.selectbox("Category", CATEGORIES, key="category_filter")
 with f3:
-    search = st.text_input("Search", placeholder="Try: 买, pinyin, school, transportation...")
+    search = st.text_input("Search", placeholder="Try: 买, pinyin, school, transportation...", key="search_filter")
 
 sync_order(category, search)
+save_progress()
 
 if not st.session_state.order:
     st.success("No cards left in this filtered deck. You marked all matching cards as known.")
     if st.button("✦ Reset progress", type="primary", use_container_width=True):
         reset_progress(category, search)
+        save_progress()
         st.rerun()
     st.stop()
 
@@ -4310,24 +4398,29 @@ with left:
         with b1:
             if st.button("👁 Reveal", type="primary", use_container_width=True):
                 st.session_state.revealed = True
+                save_progress()
                 st.rerun()
         with b2:
             if st.button("✅ I knew it", use_container_width=True):
                 mark_known(idx)
+                save_progress()
                 st.rerun()
         with b3:
             if st.button("🔁 Review again", use_container_width=True):
                 st.session_state.again.add(idx)
                 st.session_state.known.discard(idx)
                 next_card()
+                save_progress()
                 st.rerun()
         with b4:
             if st.button("➡ Next", use_container_width=True):
                 next_card()
+                save_progress()
                 st.rerun()
         with b5:
             if st.button("🔀 Shuffle", use_container_width=True):
                 shuffle_deck()
+                save_progress()
                 st.rerun()
 
         st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
@@ -4335,10 +4428,12 @@ with left:
         with c1:
             if st.button("↺ Restart filtered deck", use_container_width=True):
                 restart_filtered_deck(category, search)
+                save_progress()
                 st.rerun()
         with c2:
             if st.button("✦ Reset progress", use_container_width=True):
                 reset_progress(category, search)
+                save_progress()
                 st.rerun()
 
 with right:
